@@ -21,7 +21,12 @@ description:         Please see the README on GitHub at <https://github.com/heru
 
 dependencies:
 - base >= 4.7 && < 5
-
+- mtl
+- microlens
+- microlens-th
+- aeson
+- text
+- unordered-containers
 library:
   source-dirs: src
 
@@ -33,6 +38,7 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    - -Wall
     dependencies:
     - oas
 
