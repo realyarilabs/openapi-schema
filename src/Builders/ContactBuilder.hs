@@ -1,19 +1,19 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE OverloadedStrings, TemplateHaskell #-}
 
-module Internal.ContactBuilder
+module Builders.ContactBuilder
   ( configContact
   , nameContact
   , urlContact
   , emailContact
+  , ContactBuilder
   ) where
 
-import           Control.Monad.State (State, execState, modify)
-import           Data.Text           (Text)
-import           Internal.Errors     (ContactErr (..))
-import           Internal.Types      (Contact (..))
-import           Lens.Micro          ((?~))
-import           Lens.Micro.TH
+import Control.Monad.State (State, execState, modify)
+import Data.Text (Text)
+import Errors (ContactErr (..))
+import Lens.Micro ((?~))
+import Lens.Micro.TH
+import Types (Contact (..))
 
 
 type ContactBuilder = State ContactB ()

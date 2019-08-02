@@ -1,18 +1,18 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE OverloadedStrings, TemplateHaskell #-}
 
-module Internal.LicenseBuilder
+module Builders.LicenseBuilder
   ( configLicense
   , nameLicense
   , urlLicense
+  , LicenseBuilder
   ) where
 
-import           Control.Monad.State (State, execState, modify)
-import           Data.Text           (Text)
-import           Internal.Errors     (LicenseErr (..))
-import           Internal.Types      (License (..))
-import           Lens.Micro          ((.~), (?~))
-import           Lens.Micro.TH
+import Control.Monad.State (State, execState, modify)
+import Data.Text (Text)
+import Errors (LicenseErr (..))
+import Lens.Micro ((.~), (?~))
+import Lens.Micro.TH
+import Types (License (..))
 
 type LicenseBuilder = State LicenseB ()
 

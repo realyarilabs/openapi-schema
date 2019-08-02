@@ -1,20 +1,21 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE OverloadedStrings, TemplateHaskell #-}
 
-module Internal.OpenAPIBuilder
+module Builders.OpenAPIBuilder
   ( config
   , versionOpenAPI
   , infoOpenAPI
   , pathOpenAPI
+  , OpenAPIBuilder
   ) where
 
-import           Control.Monad.State (State, execState, modify)
-import           Data.Text           (Text)
-import           Internal.Errors     (InfoErr (..), OpenAPIErr (..), PathErr)
-import           Internal.Types      (Info, OpenAPI (..), Path)
-import           Lens.Micro          ((%~), (.~))
-import           Lens.Micro.TH
-
+import Control.Monad.State (State, execState, modify)
+import Data.Either (isLeft, lefts, rights)
+import Data.Text (Text)
+import Errors (InfoErr (..), OpenAPIErr (..), PathErr)
+import Lens.Micro ((%~), (.~))
+import Lens.Micro.TH
+import Types (Info, OpenAPI (..), Path)
+import Utils (foldBuilder)
 
 type OpenAPIBuilder = State OpenAPIB ()
 
@@ -33,12 +34,7 @@ convertS :: OpenAPIB -> Either OpenAPIErr OpenAPI
 convertS (OpenAPIB "" _ _)        = Left InvalidLicenseV
 convertS (OpenAPIB _ (Left e) _)  = Left . InvalidInfo $ e
 convertS (OpenAPIB _ _ [])        = Left NoPaths
-convertS (OpenAPIB v (Right i) p) =
-  let paths = [ x | Left x <- p]
-  in if null paths then
-       Right (OpenAPI v i [ x | Right x <- p ])
-     else
-       Left . InvalidPath . head $ paths
+convertS (OpenAPIB v (Right i) p) = foldBuilder p InvalidPath (OpenAPI v i)
 
 
 versionOpenAPI :: Text -> OpenAPIBuilder

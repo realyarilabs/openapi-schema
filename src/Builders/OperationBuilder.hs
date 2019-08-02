@@ -1,7 +1,6 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE OverloadedStrings, TemplateHaskell #-}
 
-module Internal.OperationBuilder
+module Builders.OperationBuilder
   ( configOperation
   , tagOperation
   , summaryOperation
@@ -9,16 +8,17 @@ module Internal.OperationBuilder
   , typeOperation
   , statusResponseOperation
   , defaultResponseOperation
+  , OperationBuilder
   ) where
 
-import           Control.Monad.State (State, execState, modify)
-import           Data.Text           (Text)
-import           Internal.Errors     (OperationErr (..), ResponseErr (..))
-import           Internal.Types      (Operation (..), OperationType (..),
-                                      Response, Responses (..))
-import           Lens.Micro          ((%~), (.~), (?~))
-import           Lens.Micro.TH
-
+import Control.Monad.State (State, execState, modify)
+import Data.Either (isLeft, lefts, rights)
+import Data.Text (Text)
+import Errors (OperationErr (..), ResponseErr (..))
+import Lens.Micro ((%~), (.~), (?~))
+import Lens.Micro.TH
+import Types (Operation (..), OperationType (..), Response, Responses (..))
+import Utils (foldBuilder)
 
 type OperationBuilder = State OperationB ()
 
@@ -41,12 +41,7 @@ convertO (OperationB _ _ (Just "") _ _)   = Left InvalidSummaryO
 convertO (OperationB _ _ _ (Just "") _ )  = Left InvalidDescriptionO
 convertO (OperationB (Left _) _ _ _ _)    = Left InvalidType
 convertO (OperationB _ _ _ _ [])          = Left NoResponses
-convertO (OperationB (Right t) ts s d rs) =
-  let responses = [ x | Left x <- rs]
-  in if null responses then
-       Right $ Operation t ts s d [x | Right x <- rs]
-     else
-       Left . InvalidResponse . head $ responses
+convertO (OperationB (Right t) ts s d rs) = foldBuilder rs InvalidResponse (Operation t ts s d)
 
 
 typeOperation :: OperationType -> OperationBuilder

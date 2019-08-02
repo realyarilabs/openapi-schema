@@ -1,16 +1,15 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE OverloadedStrings, RecordWildCards #-}
 
-module Internal.Types where
+module Types where
 
 import           Control.Applicative
 import           Data.Aeson
 import           Data.Aeson.TH
 import qualified Data.HashMap.Strict as HM
-import           Data.Maybe          (isNothing)
-import           Data.Text           (Text, pack, toLower)
-import           Internal.Utils      (cleanMaybes)
+import           Data.Maybe (isNothing)
+import           Data.Text (Text, pack, toLower)
 import           Lens.Micro.TH
+import           Utils (pairMaybes)
 
 data OpenAPI = OpenAPI
   { _openAPI   :: Text
@@ -80,10 +79,10 @@ instance ToJSON Response where
 
 instance ToJSON Operation where
   toJSON Operation{..} =  object $
-    cleanMaybes [_operationDescription, _operationSummary]
+    pairMaybes [_operationDescription, _operationSummary]
                 ["description", "summary"]
     <>
-    cleanMaybes [_operationTags] ["tags"]
+    pairMaybes [_operationTags] ["tags"]
     <>
     ["responses" .=  HM.fromList (foldr getPair [] _operationResponses) ] where
       getPair (Default r)  a = ("default",r):a
@@ -91,7 +90,7 @@ instance ToJSON Operation where
 
 instance ToJSON Path where
   toJSON Path{..} = object $
-    cleanMaybes [_pathSummary, _pathDescription] ["summary", "description"]
+    pairMaybes [_pathSummary, _pathDescription] ["summary", "description"]
     <>
     foldr (\Operation{..} a ->
             ((toLower . pack . show) _operationType .= Operation{..}):a)
@@ -99,24 +98,24 @@ instance ToJSON Path where
 
 instance ToJSON Contact where
   toJSON Contact{..} = object $
-    cleanMaybes [_contactName, _contactEmail, _contactUrl]
+    pairMaybes [_contactName, _contactEmail, _contactUrl]
                 ["name", "url" ,"email"]
 
 instance ToJSON License where
   toJSON License{..} = object $
     ["name" .= _licenseName]
     <>
-    cleanMaybes [_licenseUrl] ["url"]
+    pairMaybes [_licenseUrl] ["url"]
 
 instance ToJSON Info where
   toJSON Info{..} = object $
     ["title" .= _infoTitle, "version" .= _infoVersion]
     <>
-    cleanMaybes [_infoContact] ["contact"]
+    pairMaybes [_infoContact] ["contact"]
     <>
-    cleanMaybes [_infoLicense] ["license"]
+    pairMaybes [_infoLicense] ["license"]
     <>
-    cleanMaybes [_infoDescription, _infoTermsOfService]
+    pairMaybes [_infoDescription, _infoTermsOfService]
                 ["description", "termsOfService"]
 
 instance ToJSON OpenAPI where

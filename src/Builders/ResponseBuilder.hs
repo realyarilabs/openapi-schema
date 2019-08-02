@@ -1,17 +1,17 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE OverloadedStrings, TemplateHaskell #-}
 
-module Internal.ResponseBuilder
+module Builders.ResponseBuilder
   ( configResponse
   , descriptionResponse
+  , ResponseBuilder
   ) where
 
-import           Control.Monad.State (State, execState, modify)
-import           Data.Text           (Text)
-import           Internal.Errors     (ResponseErr (..))
-import           Internal.Types      (Response (..))
-import           Lens.Micro          ((.~))
-import           Lens.Micro.TH
+import Control.Monad.State (State, execState, modify)
+import Data.Text (Text)
+import Errors (ResponseErr (..))
+import Lens.Micro ((.~))
+import Lens.Micro.TH
+import Types (Response (..))
 
 
 type ResponseBuilder = State ResponseB ()

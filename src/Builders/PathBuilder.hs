@@ -1,22 +1,22 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE OverloadedStrings, TemplateHaskell #-}
 
-module Internal.PathBuilder
+module Builders.PathBuilder
   ( configPath
   , namePath
   , summaryPath
   , descriptionPath
   , operationPath
+  , PathBuilder
   ) where
 
 import           Control.Monad.State (State, execState, modify)
-import           Data.Text           (Text)
-import qualified Data.Text           as T
-import           Internal.Errors     (OperationErr, PathErr (..))
-import           Internal.Types      (Operation, Path (..))
-import           Lens.Micro          ((%~), (.~), (?~))
+import           Data.Text (Text)
+import qualified Data.Text as T
+import           Errors (OperationErr, PathErr (..))
+import           Lens.Micro ((%~), (.~), (?~))
 import           Lens.Micro.TH
-
+import           Types (Operation, Path (..))
+import           Utils (foldBuilder)
 
 type PathBuilder = State PathB ()
 
@@ -38,13 +38,9 @@ convertP (PathB _ (Just "") _ _) = Left InvalidSummaryP
 convertP (PathB _ _ (Just "") _) = Left InvalidDescriptionP
 convertP (PathB _ _ _ [])        = Left NoOperations
 convertP (PathB n s d o)         =
-  let operations = [ x | Left x <- o ]
-  in case T.head n of
-       '/' -> if null operations then
-                Right $ Path n s d [ x | Right x <- o ]
-              else
-                Left . InvalidOperation . head $ operations
-       _   -> Left InvalidNameP
+  case T.head n of
+    '/' -> foldBuilder o InvalidOperation (Path n s d)
+    _   -> Left InvalidNameP
 
 
 namePath :: Text -> PathBuilder
