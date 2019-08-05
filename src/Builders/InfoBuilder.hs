@@ -12,12 +12,13 @@ module Builders.InfoBuilder
   ) where
 
 import Control.Monad.State (State, execState, modify)
+import Data.Maybe (isNothing)
 import Data.Text (Text)
 import Errors (ContactErr, InfoErr (..), LicenseErr)
 import Lens.Micro ((.~), (?~))
 import Lens.Micro.TH
 import Types (Contact, Info (..), License)
-
+import Utils (isValidURL, isValidVersionNumber, verifyMaybe)
 
 type InfoBuilder = State InfoB ()
 
@@ -38,15 +39,17 @@ configInfo = convertI . flip execState emptyInfoB
 convertI :: InfoB -> Either InfoErr Info
 convertI (InfoB "" _ _ _ _ _)               = Left InvalidTitle
 convertI (InfoB  _ (Just "") _ _ _ _)       = Left InvalidDescriptionI
-convertI (InfoB  _ _ (Just "") _ _ _)       = Left InvalidToS
 convertI (InfoB  _ _ _ (Just (Left e)) _ _) = Left . InvalidContact $ e
 convertI (InfoB  _ _ _ _ (Just (Left e)) _) = Left . InvalidLicense $ e
 convertI (InfoB  _ _ _ _ _ "")              = Left InvalidVersion
-convertI (InfoB t d tos c l v)              =
-  Right (Info t d tos (toC c) (toC l) v) where
-    toC :: Maybe (Either b a) -> Maybe a
-    toc (Just (Left _)) = Nothing -- only to be total
-    toC = fmap (\(Right x) -> x)
+convertI (InfoB t d tos c l v)              | not . verifyMaybe isValidURL $ tos =
+  Left InvalidToS
+                                            | otherwise =
+  Right (Info t d tos (toC c) (toC l) v)
+
+toC :: Maybe (Either b a) -> Maybe a
+toc (Just (Left _)) = Nothing -- only to be total
+toC = fmap (\(Right x) -> x)
 
 
 titleInfo :: Text -> InfoBuilder

@@ -14,6 +14,7 @@ import Errors (ContactErr (..))
 import Lens.Micro ((?~))
 import Lens.Micro.TH
 import Types (Contact (..))
+import Utils (isValidEmail, isValidURL, verifyMaybe)
 
 
 type ContactBuilder = State ContactB ()
@@ -31,10 +32,11 @@ configContact = convertC . flip execState emptyContactB
 
 convertC :: ContactB -> Either ContactErr Contact
 convertC (ContactB (Just "") _ _) = Left InvalidNameC
-convertC (ContactB _ (Just "") _) = Left InvalidURLC
-convertC (ContactB _ _ (Just "")) = Left InvalidEmailC
-convertC (ContactB n u e)         = Right $ Contact n u e
-
+convertC (ContactB n u e)         | not . verifyMaybe isValidEmail $ e =
+  Left InvalidEmailC
+                                  | not . verifyMaybe isValidURL $ u =
+  Left InvalidURLC
+                                  | otherwise = Right $ Contact n u e
 
 nameContact :: Text -> ContactBuilder
 nameContact c = modify $ contactNameB ?~ c

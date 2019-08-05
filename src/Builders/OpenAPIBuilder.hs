@@ -2,7 +2,6 @@
 
 module Builders.OpenAPIBuilder
   ( config
-  , versionOpenAPI
   , infoOpenAPI
   , pathOpenAPI
   , OpenAPIBuilder
@@ -31,14 +30,10 @@ config :: State OpenAPIB () -> Either OpenAPIErr OpenAPI
 config = convertS . flip execState emptyOpenAPIB
 
 convertS :: OpenAPIB -> Either OpenAPIErr OpenAPI
-convertS (OpenAPIB "" _ _)        = Left InvalidLicenseV
 convertS (OpenAPIB _ (Left e) _)  = Left . InvalidInfo $ e
 convertS (OpenAPIB _ _ [])        = Left NoPaths
 convertS (OpenAPIB v (Right i) p) = foldBuilder p InvalidPath (OpenAPI v i)
 
-
-versionOpenAPI :: Text -> OpenAPIBuilder
-versionOpenAPI o = modify $ openAPIB .~ o
 
 infoOpenAPI :: Either InfoErr Info -> OpenAPIBuilder
 infoOpenAPI i = modify $ openInfoB .~ i
@@ -48,4 +43,4 @@ pathOpenAPI p = modify $ openPathsB %~ (p:)
 
 
 emptyOpenAPIB :: OpenAPIB
-emptyOpenAPIB = OpenAPIB "3.0.0" (Left NoInfo) []
+emptyOpenAPIB = OpenAPIB "3.0.2" (Left NoInfo) []

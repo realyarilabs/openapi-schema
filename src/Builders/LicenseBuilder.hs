@@ -13,6 +13,7 @@ import Errors (LicenseErr (..))
 import Lens.Micro ((.~), (?~))
 import Lens.Micro.TH
 import Types (License (..))
+import Utils (isValidURL, verifyMaybe)
 
 type LicenseBuilder = State LicenseB ()
 
@@ -28,8 +29,8 @@ configLicense = convertL . flip execState emptyLicenseB
 
 convertL :: LicenseB -> Either LicenseErr License
 convertL (LicenseB "" _)        = Left InvalidNameL
-convertL (LicenseB _ (Just "")) = Left InvalidURLL
-convertL (LicenseB n u)         = Right $ License n u
+convertL (LicenseB n u)         | verifyMaybe isValidURL u = Right $ License n u
+                                | otherwise = Left InvalidURLL
 
 
 nameLicense :: Text -> LicenseBuilder

@@ -3,7 +3,6 @@ module Errors where
 
 data OpenAPIErr = InvalidInfo InfoErr
                 | InvalidPath PathErr
-                | InvalidLicenseV
                 | NoPaths
                 deriving (Eq, Show)
 

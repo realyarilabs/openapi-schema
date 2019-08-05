@@ -15,13 +15,11 @@ main =  either print (I.writeFile "config.json" . encodeToLazyText) spec
 
 spec :: Either OpenAPIErr OpenAPI
 spec = config $ do
-    -- version
-    versionOpenAPI "3.0.2"
     -- info
     info $ do
         titleInfo "yay"
         descriptionInfo "asdfsgd"
-        tosInfo "WTFYW"
+        tosInfo "http://WTFYW"
         license $
             nameLicense "BSD"
         versionInfo "3.2.1"
