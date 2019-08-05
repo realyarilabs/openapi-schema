@@ -41,7 +41,7 @@ convertO (OperationB _ _ (Just "") _ _)   = Left InvalidSummaryO
 convertO (OperationB _ _ _ (Just "") _ )  = Left InvalidDescriptionO
 convertO (OperationB (Left _) _ _ _ _)    = Left InvalidType
 convertO (OperationB _ _ _ _ [])          = Left NoResponses
-convertO (OperationB (Right t) ts s d rs) = foldBuilder rs InvalidResponse (Operation t ts s d)
+convertO (OperationB (Right t) ts s d rs) = foldBuilder InvalidResponse (Operation t ts s d) rs
 
 
 typeOperation :: OperationType -> OperationBuilder

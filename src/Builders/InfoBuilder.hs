@@ -14,6 +14,7 @@ module Builders.InfoBuilder
 import Control.Monad.State (State, execState, modify)
 import Data.Maybe (isNothing)
 import Data.Text (Text)
+import Data.Traversable (sequence)
 import Errors (ContactErr, InfoErr (..), LicenseErr)
 import Lens.Micro ((.~), (?~))
 import Lens.Micro.TH
@@ -48,8 +49,7 @@ convertI (InfoB t d tos c l v)              | not . verifyMaybe isValidURL $ tos
   Right (Info t d tos (toC c) (toC l) v)
 
 toC :: Maybe (Either b a) -> Maybe a
-toc (Just (Left _)) = Nothing -- only to be total
-toC = fmap (\(Right x) -> x)
+toC = either (const Nothing) id . sequence
 
 
 titleInfo :: Text -> InfoBuilder

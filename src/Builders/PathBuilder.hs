@@ -39,7 +39,7 @@ convertP (PathB _ _ (Just "") _) = Left InvalidDescriptionP
 convertP (PathB _ _ _ [])        = Left NoOperations
 convertP (PathB n s d o)         =
   case T.head n of
-    '/' -> foldBuilder o InvalidOperation (Path n s d)
+    '/' -> foldBuilder InvalidOperation (Path n s d) o
     _   -> Left InvalidNameP
 
 

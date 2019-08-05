@@ -29,8 +29,8 @@ pairMaybes a b = join $ zipWith (\x y -> if isNothing x then [] else [y .= x]) a
     Some records fields depend on a list of other records that may have failed
     building. On such cases we want to propagate the error.
 -}
-foldBuilder :: [Either b a] -> (b -> c) -> ([a] -> d) -> Either c d
-foldBuilder l err build = bimap err build . sequence $ l
+foldBuilder :: (b -> c) -> ([a] -> d) -> [Either b a] -> Either c d
+foldBuilder err build = bimap err build . sequence
 
 {-
   Verify email addresses.

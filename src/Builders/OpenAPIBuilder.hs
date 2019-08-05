@@ -32,7 +32,7 @@ config = convertS . flip execState emptyOpenAPIB
 convertS :: OpenAPIB -> Either OpenAPIErr OpenAPI
 convertS (OpenAPIB _ (Left e) _)  = Left . InvalidInfo $ e
 convertS (OpenAPIB _ _ [])        = Left NoPaths
-convertS (OpenAPIB v (Right i) p) = foldBuilder p InvalidPath (OpenAPI v i)
+convertS (OpenAPIB v (Right i) p) = foldBuilder InvalidPath (OpenAPI v i) p
 
 
 infoOpenAPI :: Either InfoErr Info -> OpenAPIBuilder
