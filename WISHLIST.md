@@ -9,5 +9,6 @@
  - Add documentation
  - Write a proper README
 
-## Builders
- - Improve function names (since the final structures are no longer lens, the names can be improved)
+
+ ## Builders
+ - The `Paths`s and `Operation`s could be in a `Set`

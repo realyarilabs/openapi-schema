@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, RecordWildCards #-}
+{-# LANGUAGE OverloadedStrings, RecordWildCards, TemplateHaskell #-}
 
 module Types where
 
@@ -14,7 +14,7 @@ import           Utils (pairMaybes)
 data OpenAPI = OpenAPI
   { _openAPI   :: Text
   , _openInfo  :: Info
-  , _openPaths :: [Path] -- need to verify path names are unique
+  , _openPaths :: [Path]
   } deriving (Eq, Show)
 
 data Info = Info
@@ -26,12 +26,11 @@ data Info = Info
   , _infoVersion        :: Text
   } deriving (Eq, Show)
 
--- really imcomplete
 data Path = Path
   { _pathName        :: Text
   , _pathSummary     :: Maybe Text
   , _pathDescription :: Maybe Text
-  , _pathOperations  :: [Operation] -- need to verify types are unique
+  , _pathOperations  :: [Operation]
   } deriving (Eq, Show)
 
 data Operation = Operation
@@ -59,7 +58,7 @@ data OperationType = GET
                    | HEAD
                    | PATCH
                    | TRACE
-                   deriving (Eq, Show)
+                   deriving (Eq, Show, Ord)
 
 data Contact = Contact
   { _contactName  :: Maybe Text
@@ -125,3 +124,12 @@ instance ToJSON OpenAPI where
                                    [] _openPaths :: [(Text, Path)]
                             )
     ]
+
+makeLenses ''OpenAPI
+makeLenses ''Info
+makeLenses ''Path
+makeLenses ''Operation
+makeLenses ''Responses
+makeLenses ''Response
+makeLenses ''Contact
+makeLenses ''License

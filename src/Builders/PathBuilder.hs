@@ -13,10 +13,10 @@ import           Control.Monad.State (State, execState, modify)
 import           Data.Text (Text)
 import qualified Data.Text as T
 import           Errors (OperationErr, PathErr (..))
-import           Lens.Micro ((%~), (.~), (?~))
+import           Lens.Micro ((%~), (.~), (?~), (^.))
 import           Lens.Micro.TH
-import           Types (Operation, Path (..))
-import           Utils (foldBuilder)
+import           Types
+import           Utils (allDifferent, cond, foldBuilder, noRepRecord)
 
 type PathBuilder = State PathB ()
 
@@ -39,7 +39,7 @@ convertP (PathB _ _ (Just "") _) = Left InvalidDescriptionP
 convertP (PathB _ _ _ [])        = Left NoOperations
 convertP (PathB n s d o)         =
   case T.head n of
-    '/' -> foldBuilder InvalidOperation (Path n s d) o
+    '/' ->  either Left (noRepRecord (^.pathOperations) (^.operationType) RepResponses) . foldBuilder InvalidOperation (Path n s d) $ o
     _   -> Left InvalidNameP
 
 

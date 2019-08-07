@@ -4,6 +4,7 @@ module Errors where
 data OpenAPIErr = InvalidInfo InfoErr
                 | InvalidPath PathErr
                 | NoPaths
+                | RepPaths
                 deriving (Eq, Show)
 
 data InfoErr = InvalidTitle
@@ -30,6 +31,7 @@ data PathErr = InvalidNameP
              | InvalidDescriptionP
              | InvalidOperation OperationErr
              | NoOperations
+             | RepResponses
              deriving (Eq, Show)
 
 data OperationErr = InvalidTags

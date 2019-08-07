@@ -11,10 +11,10 @@ import Control.Monad.State (State, execState, modify)
 import Data.Either (isLeft, lefts, rights)
 import Data.Text (Text)
 import Errors (InfoErr (..), OpenAPIErr (..), PathErr)
-import Lens.Micro ((%~), (.~))
+import Lens.Micro ((%~), (.~), (^.))
 import Lens.Micro.TH
-import Types (Info, OpenAPI (..), Path)
-import Utils (foldBuilder)
+import Types
+import Utils (allDifferent, cond, foldBuilder, noRepRecord)
 
 type OpenAPIBuilder = State OpenAPIB ()
 
@@ -32,7 +32,7 @@ config = convertS . flip execState emptyOpenAPIB
 convertS :: OpenAPIB -> Either OpenAPIErr OpenAPI
 convertS (OpenAPIB _ (Left e) _)  = Left . InvalidInfo $ e
 convertS (OpenAPIB _ _ [])        = Left NoPaths
-convertS (OpenAPIB v (Right i) p) = foldBuilder InvalidPath (OpenAPI v i) p
+convertS (OpenAPIB v (Right i) p) = either Left (noRepRecord (^.openPaths) (^.pathName) RepPaths) . foldBuilder InvalidPath (OpenAPI v i) $ p
 
 
 infoOpenAPI :: Either InfoErr Info -> OpenAPIBuilder

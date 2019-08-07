@@ -13,9 +13,11 @@ main = hspec spec
 spec :: Spec
 spec =
   describe "Builders" $ do
-    context "OpenAPI" $
+    context "OpenAPI" $ do
       it "needs a valid Info object and Path" $
         isRight validOpenAPI `shouldBe` True
+      it "can't have paths with the same name" $
+        invalidOpenAPIRepPath `shouldBe` Left RepPaths
 
     context "Info" $ do
       it "requires a non-empty title" $
@@ -62,3 +64,7 @@ spec =
         isRight validContactEmail `shouldBe` True
       it "when present, an URL is a valid Contact" $
         isRight validContactURL `shouldBe` True
+
+    context "Path" $
+      it "can't have operations with repetitive types" $
+        invalidPathFooRep `shouldBe` Left RepResponses

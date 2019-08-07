@@ -8,7 +8,7 @@ import           Control.Monad
 import           Data.Aeson (KeyValue, ToJSON, (.=))
 import           Data.Bifunctor (bimap)
 import           Data.Either (either)
-import           Data.List (zipWith)
+import           Data.List
 import           Data.Maybe (isNothing, maybe)
 import           Data.Text (Text)
 import qualified Data.Text as T
@@ -62,3 +62,32 @@ isValidVersionNumber = uncurry (&&) . (rightFormat &&& rightDivision . nullText)
   rightFormat = either (const False) ((==3) . length) . mapM decimal . T.splitOn "."
   rightDivision = either (const False) (uncurry (&&) . ((/= '.') . T.head &&& (/= '.') . T.last))
   nullText f = if f == "" then Left f else Right f
+
+{-
+  Takes a record that has a `[b]` as a member, and checks if each `b` is unique.
+  In order to determine if each `b` is unique, a function of type `b -> a` is
+  applied.
+  If all elements are unique, return the original record.
+  If not all elements are unique, return an error.
+
+  For a record `r`:
+    - `fl` gets the [b]
+    - `fe` transforms the `b`s in `a`s
+-}
+noRepRecord :: (Ord a, Eq b) => (t -> [b]) -> (b -> a) -> c -> t -> Either c t
+noRepRecord fl fe err r = cond (allDifferent fe) (const (Right r)) (const (Left err)) $ fl r
+
+{-
+  Very if all list elements are unique.
+  Even though `tail` is not total, it will never be called on an empty list.
+-}
+allDifferent :: (Ord a, Eq a, Eq b) => (b -> a) -> [b] -> Bool
+allDifferent f = all (null . tail) . group . sortOn f
+
+{-
+  Point free if then else, by J.N.O.
+-}
+cond :: (b -> Bool) -> (b -> c) -> (b -> c) -> b -> c
+cond p f g = either f g . grd p where
+  grd :: (a -> Bool) -> a -> Either a a
+  grd pr x = if pr x then Left x else Right x

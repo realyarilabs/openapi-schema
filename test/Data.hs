@@ -11,13 +11,37 @@ validOpenAPI = config $ do
   infoOpenAPI validInfo
   pathOpenAPI validPathFoo
 
--- Path foo
+invalidOpenAPIRepPath :: Either OpenAPIErr OpenAPI
+invalidOpenAPIRepPath = config $ do
+  infoOpenAPI validInfo
+  pathOpenAPI validPathFoo
+  pathOpenAPI validPathFoo2
+
+
+-- Path
+validPathFoo2 :: Either PathErr Path
+validPathFoo2 = configPath $ do
+  namePath "/foo"
+  summaryPath "URI for the foo resource"
+  descriptionPath "Foo resource"
+  operationPath validOperationGet
+  operationPath validOperationPost
+
 validPathFoo :: Either PathErr Path
 validPathFoo = configPath $ do
   namePath "/foo"
   summaryPath "URI for the foo resource"
   descriptionPath "Foo resource"
   operationPath validOperationGet
+  operationPath validOperationPost
+
+invalidPathFooRep :: Either PathErr Path
+invalidPathFooRep = configPath $ do
+  namePath "/foo"
+  summaryPath "URI for the foo resource"
+  descriptionPath "Foo resource"
+  operationPath validOperationGet
+  operationPath validOperationPost
   operationPath validOperationPost
 
 validOperationGet :: Either OperationErr Operation
@@ -35,6 +59,7 @@ validOperationPost = configOperation $ do
   descriptionOperation "POST a `foo`"
   defaultRes $
     descriptionResponse "ok"
+
 
 -- License
 validLicense :: Either LicenseErr License
