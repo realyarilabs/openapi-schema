@@ -99,7 +99,7 @@ instance ToJSON Path where
 instance ToJSON Contact where
   toJSON Contact{..} = object $
     pairMaybes [_contactName, _contactEmail, _contactUrl]
-                ["name", "url" ,"email"]
+                ["name", "email" ,"url"]
 
 instance ToJSON License where
   toJSON License{..} = object $
