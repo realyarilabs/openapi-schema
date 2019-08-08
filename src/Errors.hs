@@ -40,6 +40,7 @@ data OperationErr = InvalidTags
                   | InvalidType
                   | NoResponses
                   | InvalidResponse ResponseErr
+                  | MoreThanOneDefault
                   deriving (Eq, Show)
 
 data ResponseErr = InvalidDescriptionR

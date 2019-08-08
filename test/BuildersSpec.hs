@@ -65,6 +65,32 @@ spec =
       it "when present, an URL is a valid Contact" $
         isRight validContactURL `shouldBe` True
 
-    context "Path" $
+    context "Path" $ do
       it "can't have operations with repetitive types" $
         invalidPathFooRep `shouldBe` Left RepResponses
+      it "requires a non-empty name" $
+        invalidPathFooNameEmpty `shouldBe` Left InvalidNameP
+      it "requires a name starting with /" $
+        invalidPathFooName `shouldBe` Left InvalidNameP
+      it "requires at least one Operation" $
+        invalidPathFooOps `shouldBe` Left NoOperations
+      it "requires a non-empty summary, when present" $
+        invalidPathFooSummary `shouldBe` Left InvalidSummaryP
+      it "requires a non-empty description, when present" $
+        invalidPathFooDescription `shouldBe` Left InvalidDescriptionP
+
+    context "Response" $
+      it "requires a non-empty description" $
+        invalidResponse `shouldBe` Left InvalidDescriptionR
+
+    context "Operation" $ do
+      it "requires a non-empty summary, when present" $
+        invalidOperationPostSummary `shouldBe` Left InvalidSummaryO
+      it "requires a non-empty description, when present" $
+        invalidOperationPostDescription `shouldBe` Left InvalidDescriptionO
+      it "requires at least one valid Response" $
+        invalidOperationPostNoReps `shouldBe` Left NoResponses
+      it "requires that only one Default Response is present" $
+        invalidOperationPostDefault `shouldBe` Left MoreThanOneDefault
+      it "when present, all tags must be non-empty" $
+        invalidOperationPostTags `shouldBe` Left InvalidTags

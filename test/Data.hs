@@ -44,22 +44,87 @@ invalidPathFooRep = configPath $ do
   operationPath validOperationPost
   operationPath validOperationPost
 
+invalidPathFooNameEmpty :: Either PathErr Path
+invalidPathFooNameEmpty = configPath $ do
+  namePath ""
+  operationPath validOperationGet
+
+invalidPathFooName :: Either PathErr Path
+invalidPathFooName = configPath $ do
+  namePath "foo"
+  operationPath validOperationGet
+
+invalidPathFooOps :: Either PathErr Path
+invalidPathFooOps = configPath $
+  namePath "/foo"
+
+invalidPathFooSummary :: Either PathErr Path
+invalidPathFooSummary = configPath $ do
+  namePath "/foo"
+  summaryPath ""
+  operationPath validOperationGet
+
+invalidPathFooDescription :: Either PathErr Path
+invalidPathFooDescription = configPath $ do
+  namePath "/foo"
+  descriptionPath ""
+  operationPath validOperationGet
+
+-- Operation
 validOperationGet :: Either OperationErr Operation
 validOperationGet = configOperation $ do
   typeOperation GET
   descriptionOperation "GET all `foo`s"
-  defaultRes $
-    descriptionResponse "ok"
-  statusRes "404" $
-    descriptionResponse "not found"
+  defaultResponseOperation validResponseOk
+  statusResponseOperation "404" validResponseNotFound
 
 validOperationPost :: Either OperationErr Operation
 validOperationPost = configOperation $ do
   typeOperation POST
   descriptionOperation "POST a `foo`"
-  defaultRes $
-    descriptionResponse "ok"
+  defaultResponseOperation validResponseOk
 
+invalidOperationPostSummary :: Either OperationErr Operation
+invalidOperationPostSummary = configOperation $ do
+  typeOperation POST
+  defaultResponseOperation validResponseOk
+  summaryOperation ""
+
+invalidOperationPostDescription :: Either OperationErr Operation
+invalidOperationPostDescription = configOperation $ do
+  typeOperation POST
+  descriptionOperation ""
+  defaultResponseOperation validResponseOk
+
+invalidOperationPostNoReps :: Either OperationErr Operation
+invalidOperationPostNoReps = configOperation $
+  typeOperation POST
+
+invalidOperationPostTags :: Either OperationErr Operation
+invalidOperationPostTags = configOperation $ do
+  typeOperation POST
+  descriptionOperation "POST a `foo`"
+  defaultResponseOperation validResponseOk
+  tagOperation "         "
+
+invalidOperationPostDefault :: Either OperationErr Operation
+invalidOperationPostDefault = configOperation $ do
+  typeOperation POST
+  defaultResponseOperation validResponseOk
+  defaultResponseOperation validResponseOk
+
+--  Response
+validResponseOk :: Either ResponseErr Response
+validResponseOk = configResponse $
+  descriptionResponse "ok"
+
+validResponseNotFound :: Either ResponseErr Response
+validResponseNotFound  = configResponse $
+  descriptionResponse "not found"
+
+invalidResponse :: Either ResponseErr Response
+invalidResponse  = configResponse $
+  descriptionResponse ""
 
 -- License
 validLicense :: Either LicenseErr License

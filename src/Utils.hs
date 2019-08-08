@@ -14,6 +14,7 @@ import           Data.Text (Text)
 import qualified Data.Text as T
 import           Data.Text.Read
 import           Data.Traversable (sequence)
+import           Types (Responses (..))
 
 {-
    Some records have optional fields, this are represented by a `Maybe a`. When
@@ -77,6 +78,12 @@ isValidVersionNumber = uncurry (&&) . (rightFormat &&& rightDivision . nullText)
 noRepRecord :: (Ord a, Eq b) => (t -> [b]) -> (b -> a) -> c -> t -> Either c t
 noRepRecord fl fe err r = cond (allDifferent fe) (const (Right r)) (const (Left err)) $ fl r
 
+
+apIfRight :: Traversable t => c -> (t a -> c) -> t (Either b a) -> c
+apIfRight c f = either (const c) f . sequence
+
+maybeRight :: Maybe (Either b a) -> Maybe a
+maybeRight = either (const Nothing) id . sequence
 {-
   Very if all list elements are unique.
   Even though `tail` is not total, it will never be called on an empty list.
@@ -91,3 +98,8 @@ cond :: (b -> Bool) -> (b -> c) -> (b -> c) -> b -> c
 cond p f g = either f g . grd p where
   grd :: (a -> Bool) -> a -> Either a a
   grd pr x = if pr x then Left x else Right x
+
+
+isDefault :: Responses -> Bool
+isDefault (Default _)  = True
+isDefault (Status _ _) = False

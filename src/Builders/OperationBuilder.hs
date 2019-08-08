@@ -13,12 +13,13 @@ module Builders.OperationBuilder
 
 import Control.Monad.State (State, execState, modify)
 import Data.Either (isLeft, lefts, rights)
-import Data.Text (Text)
+import Data.Maybe (maybe)
+import Data.Text (Text, strip)
 import Errors (OperationErr (..), ResponseErr (..))
 import Lens.Micro ((%~), (.~), (?~))
 import Lens.Micro.TH
-import Types (Operation (..), OperationType (..), Response, Responses (..))
-import Utils (foldBuilder)
+import Types
+import Utils
 
 type OperationBuilder = State OperationB ()
 
@@ -41,14 +42,15 @@ convertO (OperationB _ _ (Just "") _ _)   = Left InvalidSummaryO
 convertO (OperationB _ _ _ (Just "") _ )  = Left InvalidDescriptionO
 convertO (OperationB (Left _) _ _ _ _)    = Left InvalidType
 convertO (OperationB _ _ _ _ [])          = Left NoResponses
-convertO (OperationB (Right t) ts s d rs) = foldBuilder InvalidResponse (Operation t ts s d) rs
-
+convertO (OperationB (Right t) ts s d rs) | maybe False (elem "" . fmap strip) ts = Left InvalidTags
+                                          | apIfRight False ((/=1) . length . filter isDefault) rs = Left MoreThanOneDefault
+                                          | otherwise = foldBuilder InvalidResponse (Operation t ts s d) rs
 
 typeOperation :: OperationType -> OperationBuilder
-typeOperation t = modify $ operationTypeB .~ Right t
+typeOperation t = modify $ operationTypeB .~ pure t
 
 tagOperation :: Text -> OperationBuilder
-tagOperation o = modify $ operationTagsB %~ fmap (o:)
+tagOperation o = modify $ operationTagsB %~ pure . maybe [] (o:)
 
 summaryOperation :: Text -> OperationBuilder
 summaryOperation s = modify $ operationSummaryB ?~ s
@@ -58,7 +60,7 @@ descriptionOperation d = modify $ operationDescriptionB ?~ d
 
 defaultResponseOperation :: Either ResponseErr Response -> OperationBuilder
 defaultResponseOperation (Right e) = modify $
-  operationResponsesB %~ (Right (Default e):)
+  operationResponsesB %~ (pure (Default e):)
 defaultResponseOperation (Left e)  = modify $
   operationResponsesB %~ (Left e:)
 
