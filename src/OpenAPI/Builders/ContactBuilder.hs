@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings, TemplateHaskell #-}
 
-module Builders.ContactBuilder
+module OpenAPI.Builders.ContactBuilder
   ( configContact
   , nameContact
   , urlContact
@@ -10,11 +10,11 @@ module Builders.ContactBuilder
 
 import Control.Monad.State (State, execState, modify)
 import Data.Text (Text)
-import Errors (ContactErr (..))
 import Lens.Micro ((?~))
 import Lens.Micro.TH
-import Types (Contact (..))
-import Utils (isValidEmail, isValidURL, verifyMaybe)
+import OpenAPI.Errors (ContactErr (..))
+import OpenAPI.Types (Contact (..))
+import OpenAPI.Utils (isValidEmail, isValidURL, verifyMaybe)
 
 
 type ContactBuilder = State ContactB ()

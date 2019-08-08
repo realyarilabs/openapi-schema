@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings, TemplateHaskell #-}
 
-module Builders.OperationBuilder
+module OpenAPI.Builders.OperationBuilder
   ( configOperation
   , tagOperation
   , summaryOperation
@@ -15,11 +15,11 @@ import Control.Monad.State (State, execState, modify)
 import Data.Either (isLeft, lefts, rights)
 import Data.Maybe (maybe)
 import Data.Text (Text, strip)
-import Errors (OperationErr (..), ResponseErr (..))
 import Lens.Micro ((%~), (.~), (?~))
 import Lens.Micro.TH
-import Types
-import Utils
+import OpenAPI.Errors (OperationErr (..), ResponseErr (..))
+import OpenAPI.Types
+import OpenAPI.Utils
 
 type OperationBuilder = State OperationB ()
 

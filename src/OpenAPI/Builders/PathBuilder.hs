@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings, TemplateHaskell #-}
 
-module Builders.PathBuilder
+module OpenAPI.Builders.PathBuilder
   ( configPath
   , namePath
   , summaryPath
@@ -12,11 +12,11 @@ module Builders.PathBuilder
 import           Control.Monad.State (State, execState, modify)
 import           Data.Text (Text)
 import qualified Data.Text as T
-import           Errors (OperationErr, PathErr (..))
 import           Lens.Micro ((%~), (.~), (?~), (^.))
 import           Lens.Micro.TH
-import           Types
-import           Utils (allDifferent, cond, foldBuilder, noRepRecord)
+import           OpenAPI.Errors (OperationErr, PathErr (..))
+import           OpenAPI.Types
+import           OpenAPI.Utils (allDifferent, cond, foldBuilder, noRepRecord)
 
 type PathBuilder = State PathB ()
 

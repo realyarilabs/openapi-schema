@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings, TemplateHaskell #-}
 
-module Builders.ResponseBuilder
+module OpenAPI.Builders.ResponseBuilder
   ( configResponse
   , descriptionResponse
   , ResponseBuilder
@@ -8,10 +8,10 @@ module Builders.ResponseBuilder
 
 import Control.Monad.State (State, execState, modify)
 import Data.Text (Text)
-import Errors (ResponseErr (..))
 import Lens.Micro ((.~))
 import Lens.Micro.TH
-import Types (Response (..))
+import OpenAPI.Errors (ResponseErr (..))
+import OpenAPI.Types (Response (..))
 
 
 type ResponseBuilder = State ResponseB ()

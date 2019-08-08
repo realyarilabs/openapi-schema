@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings, TemplateHaskell #-}
 
-module Builders.LicenseBuilder
+module OpenAPI.Builders.LicenseBuilder
   ( configLicense
   , nameLicense
   , urlLicense
@@ -9,11 +9,11 @@ module Builders.LicenseBuilder
 
 import Control.Monad.State (State, execState, modify)
 import Data.Text (Text)
-import Errors (LicenseErr (..))
 import Lens.Micro ((.~), (?~))
 import Lens.Micro.TH
-import Types (License (..))
-import Utils (isValidURL, verifyMaybe)
+import OpenAPI.Errors (LicenseErr (..))
+import OpenAPI.Types (License (..))
+import OpenAPI.Utils (isValidURL, verifyMaybe)
 
 type LicenseBuilder = State LicenseB ()
 

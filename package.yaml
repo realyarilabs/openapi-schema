@@ -1,9 +1,9 @@
 name:                oas
 version:             0.1.0.0
 github:              "herulume/oas"
-license:             BSD3
+license:             MIT
 author:              "Eduardo Jorge"
-maintainer:          "herulume@gmail.com"
+maintainer:          "herulume@protonmail.com"
 copyright:           "2019 Eduardo Jorge"
 
 extra-source-files:

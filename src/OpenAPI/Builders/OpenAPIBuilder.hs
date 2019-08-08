@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings, TemplateHaskell #-}
 
-module Builders.OpenAPIBuilder
+module OpenAPI.Builders.OpenAPIBuilder
   ( config
   , infoOpenAPI
   , pathOpenAPI
@@ -10,11 +10,11 @@ module Builders.OpenAPIBuilder
 import Control.Monad.State (State, execState, modify)
 import Data.Either (isLeft, lefts, rights)
 import Data.Text (Text)
-import Errors (InfoErr (..), OpenAPIErr (..), PathErr)
 import Lens.Micro ((%~), (.~), (^.))
 import Lens.Micro.TH
-import Types
-import Utils (allDifferent, cond, foldBuilder, noRepRecord)
+import OpenAPI.Errors (InfoErr (..), OpenAPIErr (..), PathErr)
+import OpenAPI.Types
+import OpenAPI.Utils (allDifferent, cond, foldBuilder, noRepRecord)
 
 type OpenAPIBuilder = State OpenAPIB ()
 

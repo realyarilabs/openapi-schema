@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Utils where
+module OpenAPI.Utils where
 
 
 import           Control.Arrow ((&&&))
@@ -14,7 +14,7 @@ import           Data.Text (Text)
 import qualified Data.Text as T
 import           Data.Text.Read
 import           Data.Traversable (sequence)
-import           Types (Responses (..))
+import           OpenAPI.Types (Responses (..))
 
 {-
    Some records have optional fields, this are represented by a `Maybe a`. When

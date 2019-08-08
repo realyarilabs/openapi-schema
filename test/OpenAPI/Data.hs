@@ -1,9 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Data where
+module OpenAPI.Data where
 
-import Builders
-import Errors
-import Types
+import OpenAPI.Builders
+import OpenAPI.Errors
+import OpenAPI.Types
 
 -- OpenAPI
 validOpenAPI :: Either OpenAPIErr OpenAPI

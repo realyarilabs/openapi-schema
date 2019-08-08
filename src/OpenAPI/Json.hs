@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings, RecordWildCards #-}
-module Json where
+module OpenAPI.Json where
 
 import           Control.Applicative
 import           Data.Aeson
@@ -7,8 +7,8 @@ import           Data.Aeson.TH
 import qualified Data.HashMap.Strict as HM
 import           Data.Maybe (isNothing)
 import           Data.Text (Text, pack, toLower)
-import           Types
-import           Utils (pairMaybes)
+import           OpenAPI.Types
+import           OpenAPI.Utils (pairMaybes)
 
 
 instance ToJSON Response where

@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
-module Types where
+module OpenAPI.Types where
 
 import Data.Text (Text)
 import Lens.Micro.TH

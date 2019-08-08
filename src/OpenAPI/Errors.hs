@@ -1,4 +1,4 @@
-module Errors where
+module OpenAPI.Errors where
 
 
 data OpenAPIErr = InvalidInfo InfoErr

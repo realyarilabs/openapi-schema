@@ -1,12 +1,12 @@
-module Builders
+module OpenAPI.Builders
     (
-      module Builders.ContactBuilder
-    , module Builders.InfoBuilder
-    , module Builders.LicenseBuilder
-    , module Builders.PathBuilder
-    , module Builders.OpenAPIBuilder
-    , module Builders.OperationBuilder
-    , module Builders.ResponseBuilder
+      module OpenAPI.Builders.ContactBuilder
+    , module OpenAPI.Builders.InfoBuilder
+    , module OpenAPI.Builders.LicenseBuilder
+    , module OpenAPI.Builders.PathBuilder
+    , module OpenAPI.Builders.OpenAPIBuilder
+    , module OpenAPI.Builders.OperationBuilder
+    , module OpenAPI.Builders.ResponseBuilder
     , info
     , license
     , contact
@@ -16,14 +16,14 @@ module Builders
     , statusRes
     ) where
 
-import Builders.ContactBuilder
-import Builders.InfoBuilder
-import Builders.LicenseBuilder
-import Builders.OpenAPIBuilder
-import Builders.OperationBuilder
-import Builders.PathBuilder
-import Builders.ResponseBuilder
 import Data.Text (Text)
+import OpenAPI.Builders.ContactBuilder
+import OpenAPI.Builders.InfoBuilder
+import OpenAPI.Builders.LicenseBuilder
+import OpenAPI.Builders.OpenAPIBuilder
+import OpenAPI.Builders.OperationBuilder
+import OpenAPI.Builders.PathBuilder
+import OpenAPI.Builders.ResponseBuilder
 
 
 info :: InfoBuilder -> OpenAPIBuilder

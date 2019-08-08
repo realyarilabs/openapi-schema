@@ -1,9 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
-module BuildersSpec where
+module OpenAPI.BuildersSpec where
 
-import Data
 import Data.Either
-import Errors
+import OpenAPI.Data
+import OpenAPI.Errors
 import Test.Hspec
 
 

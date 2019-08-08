@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings, TemplateHaskell #-}
 
-module Builders.InfoBuilder
+module OpenAPI.Builders.InfoBuilder
   ( configInfo
   , titleInfo
   , descriptionInfo
@@ -15,11 +15,11 @@ import Control.Monad.State (State, execState, modify)
 import Data.Maybe (isNothing)
 import Data.Text (Text)
 import Data.Traversable (sequence)
-import Errors (ContactErr, InfoErr (..), LicenseErr)
 import Lens.Micro ((.~), (?~))
 import Lens.Micro.TH
-import Types (Contact, Info (..), License)
-import Utils
+import OpenAPI.Errors (ContactErr, InfoErr (..), LicenseErr)
+import OpenAPI.Types (Contact, Info (..), License)
+import OpenAPI.Utils
 
 type InfoBuilder = State InfoB ()
 
