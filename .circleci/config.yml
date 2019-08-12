@@ -14,7 +14,11 @@ jobs:
           name: Resolve/Update Dependencies
           command: stack --no-terminal setup
       - run:
-          name: Run tests
+          # We run tests on the build step because CircleCI workflows actually suck (:
+          # By sucking I mean, they suck the fpco/stack-build image in every single job.
+          # According to some forum it won't if that machine doing the build already contains the docker image.
+          # Obviously all of them are filled with NodeJS containers.
+          name: Run tests 
           command: stack --no-terminal test
       - run:
           name: Install executable
@@ -25,6 +29,30 @@ jobs:
           paths:
             - "/root/.stack"
             - ".stack-work"
+
+  coverage:
+    docker:
+      - image: fpco/stack-build:lts
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore Cached Dependencies
+          keys:
+            - cci-oas-haskell-v1-{{ checksum "stack.yaml" }}-{{ checksum "package.yaml" }}
+            - cci-oas-haskell-v1-{{ checksum "stack.yaml" }}
+      - run:
+          name: Stack build with coverage
+          command: stack build --coverage --no-terminal
+      - run:
+          name: Run tests to gather coverage data
+          command: stack test --coverage --no-terminal
+      - run:
+          name: Move HPC files to a temporary directory
+          command: |
+            mkdir -p /tmp/hpc
+            mv "$(stack path --no-terminal --local-hpc-root)" /tmp/hpc
+      - store_artifacts:
+          path: /tmp/hpc
 
   mkdocs:
     docker:
@@ -50,6 +78,7 @@ workflows:
   all:
     jobs:
       - build
+      - coverage
       - mkdocs:
           requires:
             - build
