@@ -12,3 +12,8 @@
 
  ## Builders
  - The `Paths`s and `Operation`s could be in a `Set`
+
+ ## Fix before opening repo:
+ - Opcional lists can be `[a]` instead of `Maybe [a]`
+ - Strip all `Text`s when verifying
+ - Clean Utils functions

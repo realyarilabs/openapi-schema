@@ -1,13 +1,15 @@
 {-# LANGUAGE TemplateHaskell #-}
 module OpenAPI.Types where
 
+import Data.HashMap.Strict (HashMap)
 import Data.Text (Text)
 import Lens.Micro.TH
 
 data OpenAPI = OpenAPI
-  { _openAPI   :: Text
-  , _openInfo  :: Info
-  , _openPaths :: [Path]
+  { _openAPI     :: Text
+  , _openInfo    :: Info
+  , _openPaths   :: [Path]
+  , _openServers :: [Server]
   } deriving (Eq, Show)
 
 data Info = Info
@@ -64,6 +66,17 @@ data License = License
   , _licenseUrl  :: Maybe Text
   } deriving (Eq, Show)
 
+data Server = Server
+  { _serverURL         :: Text
+  , _serverDescription :: Maybe Text
+  , _serverVars        :: HashMap Text ServerVar
+  } deriving (Eq, Show)
+
+data ServerVar = ServerVar
+  { _serverVEnum        :: Maybe [Text]
+  , _serverVDefault     :: Text
+  , _serverVDescription :: Maybe Text
+  } deriving (Eq, Show)
 
 makeLenses ''OpenAPI
 makeLenses ''Info
@@ -73,3 +86,4 @@ makeLenses ''Responses
 makeLenses ''Response
 makeLenses ''Contact
 makeLenses ''License
+makeLenses ''ServerVar

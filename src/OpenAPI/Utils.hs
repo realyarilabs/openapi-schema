@@ -10,7 +10,7 @@ import           Data.Bifunctor (bimap)
 import           Data.Either (either)
 import           Data.List
 import           Data.Maybe (isNothing, maybe)
-import           Data.Text (Text)
+import           Data.Text (Text, strip)
 import qualified Data.Text as T
 import           Data.Text.Read
 import           Data.Traversable (sequence)
@@ -30,7 +30,7 @@ pairMaybes a b = join $ zipWith (\x y -> if isNothing x then [] else [y .= x]) a
     Some records fields depend on a list of other records that may have failed
     building. On such cases we want to propagate the error.
 -}
-foldBuilder :: (b -> c) -> ([a] -> d) -> [Either b a] -> Either c d
+foldBuilder :: Traversable t => (b -> c) -> (t a -> d) -> t (Either b a) -> Either c d
 foldBuilder err build = bimap err build . sequence
 
 {-
@@ -50,6 +50,18 @@ isValidURL url = let (protocol, _) = T.breakOn "://" url
 
 verifyMaybe :: (a -> Bool) -> Maybe a -> Bool
 verifyMaybe = maybe True
+
+noEmptyTxtsMaybe :: Maybe [Text] -> Bool
+noEmptyTxtsMaybe = verifyMaybe (notElem "" . fmap strip)
+
+noEmptyTxts :: [Text] -> Bool
+noEmptyTxts = notElem "" . fmap strip
+
+noEmptyTxt :: Text -> Bool
+noEmptyTxt = (/="") .  strip
+
+noEmptyTxtMaybe :: Maybe Text -> Bool
+noEmptyTxtMaybe = verifyMaybe noEmptyTxt
 
 {-
   Verify version number.
@@ -84,6 +96,7 @@ apIfRight c f = either (const c) f . sequence
 
 maybeRight :: Maybe (Either b a) -> Maybe a
 maybeRight = either (const Nothing) id . sequence
+
 {-
   Very if all list elements are unique.
   Even though `tail` is not total, it will never be called on an empty list.

@@ -5,7 +5,13 @@ data OpenAPIErr = InvalidInfo InfoErr
                 | InvalidPath PathErr
                 | NoPaths
                 | RepPaths
+                | InvalidServer ServerErr
                 deriving (Eq, Show)
+
+data ServerVarErr = InvalidDefault
+                  | InvalidEnum
+                  | InvalidDescriptionSV
+                  deriving (Eq, Show)
 
 data InfoErr = InvalidTitle
              | InvalidDescriptionI
@@ -42,6 +48,12 @@ data OperationErr = InvalidTags
                   | InvalidResponse ResponseErr
                   | MoreThanOneDefault
                   deriving (Eq, Show)
+
+data ServerErr = InvalidURLS
+               | InvalidDescriptionS
+               | InvalidVarName
+               | InvalidServerVar ServerVarErr
+               deriving (Eq, Show)
 
 data ResponseErr = InvalidDescriptionR
                  | InvalidHttpStatus

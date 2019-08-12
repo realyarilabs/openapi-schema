@@ -7,6 +7,8 @@ module OpenAPI.Builders
     , module OpenAPI.Builders.OpenAPIBuilder
     , module OpenAPI.Builders.OperationBuilder
     , module OpenAPI.Builders.ResponseBuilder
+    , module OpenAPI.Builders.ServerVarBuilder
+    , module OpenAPI.Builders.ServerBuilder
     , info
     , license
     , contact
@@ -24,6 +26,8 @@ import OpenAPI.Builders.OpenAPIBuilder
 import OpenAPI.Builders.OperationBuilder
 import OpenAPI.Builders.PathBuilder
 import OpenAPI.Builders.ResponseBuilder
+import OpenAPI.Builders.ServerBuilder
+import OpenAPI.Builders.ServerVarBuilder
 
 
 info :: InfoBuilder -> OpenAPIBuilder

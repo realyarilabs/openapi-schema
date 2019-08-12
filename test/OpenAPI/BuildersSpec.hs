@@ -94,3 +94,21 @@ spec =
         invalidOperationPostDefault `shouldBe` Left MoreThanOneDefault
       it "when present, all tags must be non-empty" $
         invalidOperationPostTags `shouldBe` Left InvalidTags
+
+    context "Server Var" $ do
+      it "requires a non-empty default" $
+        isRight validServerVar `shouldBe` True
+      it "requires non-empty enums, when present" $
+        invalidServerVarEnum `shouldBe` Left InvalidEnum
+      it "requires a non-empty description, when present" $
+        invalidServerVarDescription `shouldBe` Left InvalidDescriptionSV
+
+    context "Server" $ do
+      it "requires an URL" $
+        isRight validServer `shouldBe` True
+      it "requires a non-empty description, when present" $
+        invalidServerDescription `shouldBe` Left InvalidDescriptionS
+      it "requires valid server vars, when present" $
+        invalidServerVar `shouldBe` Left (InvalidServerVar InvalidDescriptionSV)
+      it "requires server vars with non-empty names, when present" $
+        invalidServerVarEmpty `shouldBe` Left InvalidVarName

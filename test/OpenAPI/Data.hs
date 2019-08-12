@@ -11,6 +11,13 @@ validOpenAPI = config $ do
   infoOpenAPI validInfo
   pathOpenAPI validPathFoo
 
+jvalidOpenAPI :: Either OpenAPIErr OpenAPI
+jvalidOpenAPI = config $ do
+  infoOpenAPI validInfo
+  pathOpenAPI validPathFoo
+  serverOpenAPI validServer
+  serverOpenAPI validServer2
+
 invalidOpenAPIRepPath :: Either OpenAPIErr OpenAPI
 invalidOpenAPIRepPath = config $ do
   infoOpenAPI validInfo
@@ -245,3 +252,53 @@ invalidInfoContact = configInfo $ do
   titleInfo "Foo's API"
   contactInfo invalidContactURLEmpty
   versionInfo "v2"
+
+-- ServerVar
+validServerVar :: Either ServerVarErr ServerVar
+validServerVar = configServerVar $
+  defaultServerV "yay"
+
+validServerVar2 :: Either ServerVarErr ServerVar
+validServerVar2 = configServerVar $ do
+  defaultServerV "yeah"
+  enumServerV "earth"
+  enumServerV "heaven"
+  descriptionServerV "Darwin antigame"
+
+invalidServerVarEnum :: Either ServerVarErr ServerVar
+invalidServerVarEnum = configServerVar $ do
+  defaultServerV "yay"
+  enumServerV "  "
+
+invalidServerVarDescription :: Either ServerVarErr ServerVar
+invalidServerVarDescription = configServerVar $ do
+  defaultServerV "yay"
+  descriptionServerV "  "
+
+-- Server
+validServer :: Either ServerErr Server
+validServer = configServer $
+  urlServer "bar"
+
+validServer2 :: Either ServerErr Server
+validServer2 = configServer $ do
+  urlServer "fo"
+  descriptionServer "Fo, almost Foo"
+  varServer  "test1" validServerVar
+  varServer  "test2" validServerVar2
+
+invalidServerDescription :: Either ServerErr Server
+invalidServerDescription = configServer $ do
+  urlServer "bar"
+  descriptionServer "  "
+
+
+invalidServerVar :: Either ServerErr Server
+invalidServerVar = configServer $ do
+  urlServer "bar"
+  varServer "foo" invalidServerVarDescription
+
+invalidServerVarEmpty :: Either ServerErr Server
+invalidServerVarEmpty = configServer $ do
+  urlServer "bar"
+  varServer " " validServerVar

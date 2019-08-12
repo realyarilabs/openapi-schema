@@ -61,4 +61,22 @@ instance ToJSON OpenAPI where
     ,"paths" .= HM.fromList (foldr (\Path{..} a -> (_pathName, Path{..}):a)
                                    [] _openPaths :: [(Text, Path)]
                             )
+    , "servers" .= _openServers
     ]
+
+instance ToJSON ServerVar where
+  toJSON ServerVar{..} = object $
+    ["default" .= _serverVDefault]
+    <>
+    pairMaybes [_serverVEnum] ["enum"]
+    <>
+    pairMaybes [_serverVDescription] ["description"]
+
+instance ToJSON Server where
+  toJSON Server{..} = object $
+    ["url" .= _serverURL]
+    <>
+    pairMaybes [_serverDescription] ["description"]
+    <>
+    ["variables" .= _serverVars]
+
