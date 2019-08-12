@@ -6,6 +6,7 @@ data OpenAPIErr = InvalidInfo InfoErr
                 | NoPaths
                 | RepPaths
                 | InvalidServer ServerErr
+                | InvalidSecurity SecReqErr
                 deriving (Eq, Show)
 
 data ServerVarErr = InvalidDefault
@@ -58,3 +59,7 @@ data ServerErr = InvalidURLS
 data ResponseErr = InvalidDescriptionR
                  | InvalidHttpStatus
                  deriving (Eq, Show)
+
+data SecReqErr = InvalidNameSecR
+               | InvalidEmptyScope
+               deriving (Eq, Show)

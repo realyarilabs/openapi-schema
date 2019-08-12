@@ -11,6 +11,9 @@ import           OpenAPI.Types
 import           OpenAPI.Utils (pairMaybes)
 
 
+instance ToJSON SecReq where
+  toJSON SecReq{..} = Object $ _secReqName .= _secReqScope
+
 instance ToJSON Response where
   toJSON Response{..} = Object $ "description" .= _responseDescription
 
@@ -62,6 +65,7 @@ instance ToJSON OpenAPI where
                                    [] _openPaths :: [(Text, Path)]
                             )
     , "servers" .= _openServers
+    , "security" .= _openSecurity
     ]
 
 instance ToJSON ServerVar where

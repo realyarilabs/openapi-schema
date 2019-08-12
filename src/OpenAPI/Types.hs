@@ -6,10 +6,11 @@ import Data.Text (Text)
 import Lens.Micro.TH
 
 data OpenAPI = OpenAPI
-  { _openAPI     :: Text
-  , _openInfo    :: Info
-  , _openPaths   :: [Path]
-  , _openServers :: [Server]
+  { _openAPI      :: Text
+  , _openInfo     :: Info
+  , _openSecurity :: [SecReq]
+  , _openPaths    :: [Path]
+  , _openServers  :: [Server]
   } deriving (Eq, Show)
 
 data Info = Info
@@ -78,6 +79,11 @@ data ServerVar = ServerVar
   , _serverVDescription :: Maybe Text
   } deriving (Eq, Show)
 
+data SecReq = SecReq
+  { _secReqName  :: Text
+  , _secReqScope :: [Text]
+  } deriving (Eq, Show)
+
 makeLenses ''OpenAPI
 makeLenses ''Info
 makeLenses ''Path
@@ -87,3 +93,4 @@ makeLenses ''Response
 makeLenses ''Contact
 makeLenses ''License
 makeLenses ''ServerVar
+makeLenses ''SecReq

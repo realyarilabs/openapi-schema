@@ -18,6 +18,8 @@ spec =
         isRight validOpenAPI `shouldBe` True
       it "can't have paths with the same name" $
         invalidOpenAPIRepPath `shouldBe` Left RepPaths
+      it "can't have an invalid security config" $
+        invalidOpenAPIScope `shouldBe` Left (InvalidSecurity InvalidEmptyScope)
 
     context "Info" $ do
       it "requires a non-empty title" $
@@ -112,3 +114,12 @@ spec =
         invalidServerVar `shouldBe` Left (InvalidServerVar InvalidDescriptionSV)
       it "requires server vars with non-empty names, when present" $
         invalidServerVarEmpty `shouldBe` Left InvalidVarName
+
+    context "SecReq" $ do
+      it "requires a name" $
+        isRight validSecReq `shouldBe` True
+      it "requires a non-empty name" $
+        invalidSecReqEmptyName `shouldBe` Left InvalidNameSecR
+      it "requires non-empty scopes, when present" $
+        invalidSecReqScope `shouldBe` Left InvalidEmptyScope
+

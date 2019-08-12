@@ -4,6 +4,7 @@
 ## Global
  - Remove all warnings
  - Remove Prelude (maybe use Protolude instead?)
+ - Add CI
  - Add a Makefile
  - Add documentation
  - Write a proper README
@@ -16,8 +17,4 @@
  - Opcional lists can be `[a]` instead of `Maybe [a]`
  - Strip all `Text`s when verifying
  - Clean Utils functions
-
-
- ## CircleCI
- - Remove hardcoded version number by a CircleCI variable
- - Add support for CodeCov
+ - Clean control flow. Use more monadic code.

@@ -17,6 +17,7 @@ jvalidOpenAPI = config $ do
   pathOpenAPI validPathFoo
   serverOpenAPI validServer
   serverOpenAPI validServer2
+  securityOpenAPI validSecReq
 
 invalidOpenAPIRepPath :: Either OpenAPIErr OpenAPI
 invalidOpenAPIRepPath = config $ do
@@ -24,6 +25,11 @@ invalidOpenAPIRepPath = config $ do
   pathOpenAPI validPathFoo
   pathOpenAPI validPathFoo2
 
+invalidOpenAPIScope :: Either OpenAPIErr OpenAPI
+invalidOpenAPIScope = config $ do
+  infoOpenAPI validInfo
+  pathOpenAPI validPathFoo
+  securityOpenAPI invalidSecReqScope
 
 -- Path
 validPathFoo2 :: Either PathErr Path
@@ -302,3 +308,18 @@ invalidServerVarEmpty :: Either ServerErr Server
 invalidServerVarEmpty = configServer $ do
   urlServer "bar"
   varServer " " validServerVar
+
+
+-- SecReq
+validSecReq :: Either SecReqErr SecReq
+validSecReq = configSecReq $
+  nameSecReq "test"
+
+invalidSecReqEmptyName :: Either SecReqErr SecReq
+invalidSecReqEmptyName = configSecReq $
+  nameSecReq "     "
+
+invalidSecReqScope :: Either SecReqErr SecReq
+invalidSecReqScope = configSecReq $ do
+  nameSecReq "test"
+  scopeSeqReq "   "
