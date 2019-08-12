@@ -1,0 +1,26 @@
+#!/bin/bash
+
+error_exit() {
+  echo "$1" >&2
+  exit "${2:1}"
+}
+
+BUILD_NUMBER=$1
+
+[[ -z "$CIRCLE_TOKEN" ]] && error_exit "CIRCLE_TOKEN environment variable must be defined"
+[[ -z "$BUILD_NUMBER" ]] && error_exit "BUILD_NUMBER environment variable must be defined"
+
+# Improve check
+ls docs || error_exit "Can't find a directory named docs. Are you in the right directory?"
+
+mv docs docs_old && mkdir docs && cd docs || exit 1
+
+URL="https://circleci.com/api/v1.1/project/github/herulume/OAS/$BUILD_NUMBER/artifacts?circle-token=$CIRCLE_TOKEN"
+
+echo "$URL"
+curl "$URL" \
+   | grep -o 'https://[^"]*' \
+   | sed -e "s/$/?circle-token=$CIRCLE_TOKEN/" \
+   | wget --content-disposition -v -i -
+
+for i in $(find . -type f -name "*\?*"); do mv "$i" "$(echo "$i" | cut -d? -f1)"; done

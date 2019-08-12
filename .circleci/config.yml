@@ -6,7 +6,6 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
           name: Restore Cached Dependencies
           keys:
             - cci-oas-haskell-v1-{{ checksum "stack.yaml" }}-{{ checksum "package.yaml" }}
@@ -20,9 +19,17 @@ jobs:
       - run:
           name: Install executable
           command: stack --no-terminal install
+      - run:
+          name: Run haddock and move haddock files to a temporary directory
+          command: |
+            stack --no-terminal haddock
+            mkdir -p /tmp/haddock
+            mv "$(stack --no-terminal path --local-doc-root)/oas-0.1.0.0" /tmp/haddock
       - save_cache:
           name: Cache Dependencies
           key: cci-oas-haskell-v1-{{ checksum "stack.yaml" }}-{{ checksum "package.yaml" }}
           paths:
             - "/root/.stack"
             - ".stack-work"
+      - store_artifacts:
+          path: /tmp/haddock
