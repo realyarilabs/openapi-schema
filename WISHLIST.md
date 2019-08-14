@@ -16,5 +16,4 @@
  ## Fix before opening repo:
  - Opcional lists can be `[a]` instead of `Maybe [a]`
  - Strip all `Text`s when verifying
- - Clean Utils functions
  - Clean control flow. Use more monadic code.

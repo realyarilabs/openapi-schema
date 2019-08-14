@@ -51,17 +51,17 @@ isValidURL url = let (protocol, _) = T.breakOn "://" url
 verifyMaybe :: (a -> Bool) -> Maybe a -> Bool
 verifyMaybe = maybe True
 
-noEmptyTxtsMaybe :: Maybe [Text] -> Bool
-noEmptyTxtsMaybe = verifyMaybe (notElem "" . fmap strip)
+emptyTxtsMaybe :: Maybe [Text] -> Bool
+emptyTxtsMaybe = maybe False emptyTxts
 
-noEmptyTxts :: [Text] -> Bool
-noEmptyTxts = notElem "" . fmap strip
+emptyTxts :: [Text] -> Bool
+emptyTxts = elem "" . fmap strip
 
-noEmptyTxt :: Text -> Bool
-noEmptyTxt = (/="") .  strip
+emptyTxt :: Text -> Bool
+emptyTxt = (== "") .  strip
 
-noEmptyTxtMaybe :: Maybe Text -> Bool
-noEmptyTxtMaybe = verifyMaybe noEmptyTxt
+emptyTxtMaybe :: Maybe Text -> Bool
+emptyTxtMaybe = maybe False emptyTxt
 
 {-
   Verify version number.

@@ -42,7 +42,7 @@ convertO (OperationB _ _ (Just "") _ _)   = Left InvalidSummaryO
 convertO (OperationB _ _ _ (Just "") _ )  = Left InvalidDescriptionO
 convertO (OperationB (Left _) _ _ _ _)    = Left InvalidType
 convertO (OperationB _ _ _ _ [])          = Left NoResponses
-convertO (OperationB (Right t) ts s d rs) | not . noEmptyTxtsMaybe $ ts = Left InvalidTags
+convertO (OperationB (Right t) ts s d rs) | emptyTxtsMaybe ts = Left InvalidTags
                                           | apIfRight False ((/=1) . length . filter isDefault) rs = Left MoreThanOneDefault
                                           | otherwise = foldBuilder InvalidResponse (Operation t ts s d) rs
 

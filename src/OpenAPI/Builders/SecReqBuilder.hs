@@ -29,8 +29,8 @@ configSecReq :: SecReqBuilder -> Either SecReqErr SecReq
 configSecReq = convertC . flip execState emptySecReqB
 
 convertC :: SecReqB -> Either SecReqErr SecReq
-convertC (SecReqB n ss) | not . noEmptyTxt $ n = Left InvalidNameSecR
-                        | not . noEmptyTxts $ ss = Left InvalidEmptyScope
+convertC (SecReqB n ss) | emptyTxt n = Left InvalidNameSecR
+                        | emptyTxts ss = Left InvalidEmptyScope
                         | otherwise = pure $ SecReq n ss
 
 nameSecReq :: Text -> SecReqBuilder
