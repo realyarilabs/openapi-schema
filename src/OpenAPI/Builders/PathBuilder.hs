@@ -16,7 +16,7 @@ import           Lens.Micro ((%~), (.~), (?~), (^.))
 import           Lens.Micro.TH
 import           OpenAPI.Errors (OperationErr, PathErr (..))
 import           OpenAPI.Types
-import           OpenAPI.Utils (allDifferent, cond, foldBuilder, noRepRecord)
+import           OpenAPI.Utils
 
 type PathBuilder = State PathB ()
 
@@ -33,14 +33,13 @@ configPath :: PathBuilder -> Either PathErr Path
 configPath = convertP . flip execState emptyPathB
 
 convertP :: PathB -> Either PathErr Path
-convertP (PathB "" _ _ _)        = Left InvalidNameP
-convertP (PathB _ (Just "") _ _) = Left InvalidSummaryP
-convertP (PathB _ _ (Just "") _) = Left InvalidDescriptionP
-convertP (PathB _ _ _ [])        = Left NoOperations
-convertP (PathB n s d o)         =
-  case T.head n of
-    '/' ->  either Left (noRepRecord (^.pathOperations) (^.operationType) RepResponses) . foldBuilder InvalidOperation (Path n s d) $ o
-    _   -> Left InvalidNameP
+convertP (PathB _ _ _ []) = Left NoOperations
+convertP (PathB n s d o)  | emptyTxt n = Left InvalidNameP
+                          | emptyTxtMaybe s = Left InvalidSummaryP
+                          | emptyTxtMaybe d = Left InvalidDescriptionP
+                          | otherwise = case T.head n of
+                                          '/' -> foldBuilder InvalidOperation (Path n s d) o >>= noRepRecord (^.pathOperations) (^.operationType) RepResponses
+                                          _   -> Left InvalidNameP
 
 
 namePath :: Text -> PathBuilder

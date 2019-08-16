@@ -32,10 +32,10 @@ configServerVar = convertC . flip execState emptyServerVarB
 
 convertC :: ServerVarB -> Either ServerVarErr ServerVar
 convertC (ServerVarB (Just []) _ _) = Left InvalidEnum
-convertC (ServerVarB _ "" _)        = Left InvalidDefault
-convertC (ServerVarB e dt d)        | emptyTxtMaybe d = Left InvalidDescriptionSV
-                                    | emptyTxtsMaybe e = Left InvalidEnum
-                                    | otherwise = pure $ ServerVar e dt d
+convertC (ServerVarB e dt d) | emptyTxtMaybe d = Left InvalidDescriptionSV
+                             | emptyTxt dt = Left InvalidDefault
+                             | emptyTxtsMaybe e = Left InvalidEnum
+                             | otherwise = pure $ ServerVar e dt d
 
 
 defaultServerV :: Text -> ServerVarBuilder

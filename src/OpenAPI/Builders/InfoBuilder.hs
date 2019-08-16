@@ -38,15 +38,13 @@ configInfo :: InfoBuilder -> Either InfoErr Info
 configInfo = convertI . flip execState emptyInfoB
 
 convertI :: InfoB -> Either InfoErr Info
-convertI (InfoB "" _ _ _ _ _)               = Left InvalidTitle
-convertI (InfoB  _ (Just "") _ _ _ _)       = Left InvalidDescriptionI
 convertI (InfoB  _ _ _ (Just (Left e)) _ _) = Left . InvalidContact $ e
 convertI (InfoB  _ _ _ _ (Just (Left e)) _) = Left . InvalidLicense $ e
-convertI (InfoB  _ _ _ _ _ "")              = Left InvalidVersion
-convertI (InfoB t d tos c l v)              | not . verifyMaybe isValidURL $ tos =
-  Left InvalidToS
-                                            | otherwise =
-  Right (Info t d tos (maybeRight c) (maybeRight l) v)
+convertI (InfoB t d tos c l v) | not . verifyMaybe isValidURL $ tos = Left InvalidToS
+                               | emptyTxt t = Left InvalidTitle
+                               | emptyTxtMaybe d = Left InvalidDescriptionI
+                               | emptyTxt v = Left InvalidVersion
+                               | otherwise = pure $ Info t d tos (maybeRight c) (maybeRight l) v
 
 
 titleInfo :: Text -> InfoBuilder

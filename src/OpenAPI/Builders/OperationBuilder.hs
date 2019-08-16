@@ -38,12 +38,12 @@ configOperation = convertO . flip execState emptyOperationB
 
 convertO :: OperationB -> Either OperationErr Operation
 convertO (OperationB _ (Just []) _ _ _)   = Left InvalidTags
-convertO (OperationB _ _ (Just "") _ _)   = Left InvalidSummaryO
-convertO (OperationB _ _ _ (Just "") _ )  = Left InvalidDescriptionO
 convertO (OperationB (Left _) _ _ _ _)    = Left InvalidType
 convertO (OperationB _ _ _ _ [])          = Left NoResponses
 convertO (OperationB (Right t) ts s d rs) | emptyTxtsMaybe ts = Left InvalidTags
                                           | apIfRight False ((/=1) . length . filter isDefault) rs = Left MoreThanOneDefault
+                                          | emptyTxtMaybe s = Left InvalidSummaryO
+                                          | emptyTxtMaybe d = Left InvalidDescriptionO
                                           | otherwise = foldBuilder InvalidResponse (Operation t ts s d) rs
 
 typeOperation :: OperationType -> OperationBuilder

@@ -14,7 +14,7 @@ import Lens.Micro ((?~))
 import Lens.Micro.TH
 import OpenAPI.Errors (ContactErr (..))
 import OpenAPI.Types (Contact (..))
-import OpenAPI.Utils (isValidEmail, isValidURL, verifyMaybe)
+import OpenAPI.Utils
 
 
 type ContactBuilder = State ContactB ()
@@ -31,12 +31,10 @@ configContact :: ContactBuilder -> Either ContactErr Contact
 configContact = convertC . flip execState emptyContactB
 
 convertC :: ContactB -> Either ContactErr Contact
-convertC (ContactB (Just "") _ _) = Left InvalidNameC
-convertC (ContactB n u e)         | not . verifyMaybe isValidEmail $ e =
-  Left InvalidEmailC
-                                  | not . verifyMaybe isValidURL $ u =
-  Left InvalidURLC
-                                  | otherwise = Right $ Contact n u e
+convertC (ContactB n u e) | emptyTxtMaybe n = Left InvalidNameC
+                          | not . verifyMaybe isValidEmail $ e = Left InvalidEmailC
+                          | not . verifyMaybe isValidURL $ u = Left InvalidURLC
+                          | otherwise = pure $ Contact n u e
 
 nameContact :: Text -> ContactBuilder
 nameContact c = modify $ contactNameB ?~ c

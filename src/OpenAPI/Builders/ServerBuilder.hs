@@ -34,8 +34,8 @@ configServer :: ServerBuilder -> Either ServerErr Server
 configServer = convertC . flip execState emptyServerB
 
 convertC :: ServerB -> Either ServerErr Server
-convertC (ServerB "" _ _) = Left InvalidURLS
 convertC (ServerB u d sv) | emptyTxtMaybe d = Left InvalidDescriptionS
+                          | emptyTxt u = Left InvalidURLS
                           | emptyTxts . HM.keys $ sv = Left InvalidVarName
                           | otherwise = foldBuilder InvalidServerVar (Server u d) sv
 

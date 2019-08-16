@@ -12,6 +12,7 @@ import Lens.Micro ((.~))
 import Lens.Micro.TH
 import OpenAPI.Errors (ResponseErr (..))
 import OpenAPI.Types (Response (..))
+import OpenAPI.Utils
 
 
 type ResponseBuilder = State ResponseB ()
@@ -26,8 +27,8 @@ configResponse :: ResponseBuilder -> Either ResponseErr Response
 configResponse = convertR . flip execState emptyResponseB
 
 convertR :: ResponseB -> Either ResponseErr Response
-convertR (ResponseB "") = Left InvalidDescriptionR
-convertR (ResponseB d)  = Right $ Response d
+convertR (ResponseB d) | emptyTxt d = Left InvalidDescriptionR
+                       | otherwise = pure . Response $ d
 
 
 descriptionResponse :: Text -> ResponseBuilder

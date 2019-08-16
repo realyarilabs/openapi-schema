@@ -13,7 +13,7 @@ import Lens.Micro ((.~), (?~))
 import Lens.Micro.TH
 import OpenAPI.Errors (LicenseErr (..))
 import OpenAPI.Types (License (..))
-import OpenAPI.Utils (isValidURL, verifyMaybe)
+import OpenAPI.Utils
 
 type LicenseBuilder = State LicenseB ()
 
@@ -28,9 +28,9 @@ configLicense :: LicenseBuilder -> Either LicenseErr License
 configLicense = convertL . flip execState emptyLicenseB
 
 convertL :: LicenseB -> Either LicenseErr License
-convertL (LicenseB "" _)        = Left InvalidNameL
-convertL (LicenseB n u)         | verifyMaybe isValidURL u = Right $ License n u
-                                | otherwise = Left InvalidURLL
+convertL (LicenseB n u) | emptyTxt n = Left InvalidNameL
+                        | not . verifyMaybe isValidURL $ u = Left InvalidURLL
+                        | otherwise = pure $ License n u
 
 
 nameLicense :: Text -> LicenseBuilder
