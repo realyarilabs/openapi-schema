@@ -3,7 +3,6 @@
 
 ## Global
 
-- Add a Makefile
 - Add proper documentation
 
 
