@@ -12,8 +12,6 @@ module OpenAPI.Builders.OperationBuilder
   ) where
 
 import Control.Monad.State (State, execState, modify)
-import Data.Either (isLeft, lefts, rights)
-import Data.Maybe (maybe)
 import Data.Text (Text)
 import Lens.Micro ((%~), (.~), (?~))
 import Lens.Micro.TH

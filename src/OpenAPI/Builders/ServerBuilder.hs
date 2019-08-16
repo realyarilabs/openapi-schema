@@ -9,7 +9,6 @@ module OpenAPI.Builders.ServerBuilder
   ) where
 
 import           Control.Monad.State (State, execState, modify)
-import           Data.Either
 import           Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HM
 import           Data.Text (Text)

@@ -3,10 +3,8 @@
 
 ## Global
 
-- Remove all warnings
-- Remove Prelude (maybe use Protolude instead?)
 - Add a Makefile
-- Add documentation
+- Add proper documentation
 
 
 ## Builders
@@ -16,7 +14,7 @@
 
 ## Good first issues:
 
-- Improve Errors strcture
+- Improve Errors structure
 
 
 ## CircleCI

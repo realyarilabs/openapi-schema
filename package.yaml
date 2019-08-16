@@ -29,6 +29,13 @@ dependencies:
 - unordered-containers
 library:
   source-dirs: src
+  ghc-options:
+  - -Wall
+  - -Wcompat
+  - -Wincomplete-record-updates
+  - -Wincomplete-uni-patterns
+  - -Wredundant-constraints
+  - -Werror
 
 tests:
   oas-test:
@@ -38,6 +45,12 @@ tests:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    - -Wall
+    - -Wcompat
+    - -Wincomplete-record-updates
+    - -Wincomplete-uni-patterns
+    - -Wredundant-constraints
+    - -Werror
     dependencies:
     - oas
     - hspec

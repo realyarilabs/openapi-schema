@@ -4,12 +4,10 @@ module OpenAPI.Utils where
 
 
 import           Control.Arrow ((&&&))
-import           Control.Monad
-import           Data.Aeson (KeyValue, ToJSON, (.=))
 import           Data.Bifunctor (bimap)
 import           Data.Either (either)
 import           Data.List
-import           Data.Maybe (isNothing, maybe)
+import           Data.Maybe (maybe)
 import           Data.Text (Text, strip)
 import qualified Data.Text as T
 import           Data.Text.Read
@@ -63,7 +61,7 @@ emptyTxtMaybe = maybe False emptyTxt
 -}
 isValidVersionNumber :: Text -> Bool
 isValidVersionNumber = uncurry (&&) . (rightFormat &&& rightDivision . nullText)  where
-  rightFormat = either (const False) ((==3) . length) . mapM decimal . T.splitOn "."
+  rightFormat = either (const False) ((==3) . length) . mapM (decimal :: Reader Integer) . T.splitOn "."
   rightDivision = either (const False) (uncurry (&&) . ((/= '.') . T.head &&& (/= '.') . T.last))
   nullText f = if f == "" then Left f else Right f
 
@@ -92,7 +90,7 @@ maybeRight = either (const Nothing) id . sequence
   Very if all list elements are unique.
   Even though `tail` is not total, it will never be called on an empty list.
 -}
-allDifferent :: (Ord a, Eq a, Eq b) => (b -> a) -> [b] -> Bool
+allDifferent :: (Ord a, Eq b) => (b -> a) -> [b] -> Bool
 allDifferent f = all (null . tail) . group . sortOn f
 
 {-

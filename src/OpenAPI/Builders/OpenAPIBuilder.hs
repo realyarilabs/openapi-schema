@@ -11,7 +11,6 @@ module OpenAPI.Builders.OpenAPIBuilder
 
 import Control.Monad.State (State, execState, modify)
 import Data.Bifunctor (first)
-import Data.Either
 import Data.Text (Text)
 import Lens.Micro ((%~), (.~), (^.))
 import Lens.Micro.TH
@@ -22,7 +21,7 @@ import OpenAPI.Utils
 type OpenAPIBuilder = State OpenAPIB ()
 
 data OpenAPIB = OpenAPIB
-  { _openAPIB      :: Text
+  { openAPIB       :: Text
   , _openInfoB     :: Either InfoErr Info
   , _openSecurityB :: [Either SecReqErr SecReq]
   , _openPathsB    :: [Either PathErr Path]

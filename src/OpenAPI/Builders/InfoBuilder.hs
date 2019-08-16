@@ -12,9 +12,7 @@ module OpenAPI.Builders.InfoBuilder
   ) where
 
 import Control.Monad.State (State, execState, modify)
-import Data.Maybe (isNothing)
 import Data.Text (Text)
-import Data.Traversable (sequence)
 import Lens.Micro ((.~), (?~))
 import Lens.Micro.TH
 import OpenAPI.Errors (ContactErr, InfoErr (..), LicenseErr)

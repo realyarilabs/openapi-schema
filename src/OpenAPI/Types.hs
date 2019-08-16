@@ -3,7 +3,6 @@ module OpenAPI.Types where
 
 import           Control.Monad (join)
 import           Data.Aeson
-import           Data.Aeson.TH
 import           Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HM
 import           Data.Maybe (isNothing)
