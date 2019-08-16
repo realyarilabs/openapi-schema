@@ -25,7 +25,7 @@ type OperationBuilder = State OperationB ()
 
 data OperationB = OperationB
   { _operationTypeB        :: Either () OperationType
-  , _operationTagsB        :: Maybe [Text]
+  , _operationTagsB        :: [Text]
   , _operationSummaryB     :: Maybe Text
   , _operationDescriptionB :: Maybe Text
   , _operationResponsesB   :: [Either ResponseErr Responses]
@@ -37,10 +37,9 @@ configOperation :: OperationBuilder -> Either OperationErr Operation
 configOperation = convertO . flip execState emptyOperationB
 
 convertO :: OperationB -> Either OperationErr Operation
-convertO (OperationB _ (Just []) _ _ _)   = Left InvalidTags
 convertO (OperationB (Left _) _ _ _ _)    = Left InvalidType
 convertO (OperationB _ _ _ _ [])          = Left NoResponses
-convertO (OperationB (Right t) ts s d rs) | emptyTxtsMaybe ts = Left InvalidTags
+convertO (OperationB (Right t) ts s d rs) | emptyTxts ts = Left InvalidTags
                                           | apIfRight False ((/=1) . length . filter isDefault) rs = Left MoreThanOneDefault
                                           | emptyTxtMaybe s = Left InvalidSummaryO
                                           | emptyTxtMaybe d = Left InvalidDescriptionO
@@ -50,7 +49,7 @@ typeOperation :: OperationType -> OperationBuilder
 typeOperation t = modify $ operationTypeB .~ pure t
 
 tagOperation :: Text -> OperationBuilder
-tagOperation o = modify $ operationTagsB %~ pure . maybe [] (o:)
+tagOperation o = modify $ operationTagsB %~ (o:)
 
 summaryOperation :: Text -> OperationBuilder
 summaryOperation s = modify $ operationSummaryB ?~ s
@@ -73,4 +72,4 @@ statusResponseOperation _ (Left e) = modify $ operationResponsesB %~ (Left e:)
 
 
 emptyOperationB :: OperationB
-emptyOperationB = OperationB (Left ()) Nothing Nothing Nothing []
+emptyOperationB = OperationB (Left ()) [] Nothing Nothing []

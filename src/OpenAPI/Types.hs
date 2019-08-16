@@ -36,7 +36,7 @@ data Path = Path
 
 data Operation = Operation
   { _operationType        :: OperationType
-  , _operationTags        :: Maybe [Text]
+  , _operationTags        :: [Text]
   , _operationSummary     :: Maybe Text
   , _operationDescription :: Maybe Text
   , _operationResponses   :: [Responses]
@@ -79,7 +79,7 @@ data Server = Server
   } deriving (Eq, Show)
 
 data ServerVar = ServerVar
-  { _serverVEnum        :: Maybe [Text]
+  { _serverVEnum        :: [Text]
   , _serverVDefault     :: Text
   , _serverVDescription :: Maybe Text
   } deriving (Eq, Show)
@@ -113,7 +113,7 @@ instance ToJSON Operation where
     pairMaybes [_operationDescription, _operationSummary]
                 ["description", "summary"]
     <>
-    pairMaybes [_operationTags] ["tags"]
+    ["tags" .= _operationTags]
     <>
     ["responses" .=  HM.fromList (foldr getPair [] _operationResponses) ] where
       getPair (Default r)  a = ("default",r):a
@@ -161,9 +161,9 @@ instance ToJSON OpenAPI where
 
 instance ToJSON ServerVar where
   toJSON ServerVar{..} = object $
-    ["default" .= _serverVDefault]
-    <>
-    pairMaybes [_serverVEnum] ["enum"]
+    [ "default" .= _serverVDefault
+    , "enum" .= _serverVEnum
+    ]
     <>
     pairMaybes [_serverVDescription] ["description"]
 

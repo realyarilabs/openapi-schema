@@ -16,7 +16,6 @@
 
 ## Good first issues:
 
-- Optional lists can be `[a]` instead of `Maybe [a]`
 - Improve Errors strcture
 
 
