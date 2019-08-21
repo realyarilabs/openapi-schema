@@ -28,8 +28,10 @@ data Info = Info
 
 data Path = Path
   { _pathName        :: Text
+  , _pathRef         :: Maybe Text
   , _pathSummary     :: Maybe Text
   , _pathDescription :: Maybe Text
+  , _pathServers     :: [Server]
   , _pathOperations  :: [Operation]
   } deriving (Eq, Show)
 
@@ -129,11 +131,13 @@ instance ToJSON Operation where
 
 instance ToJSON Path where
   toJSON Path{..} = object $
-    pairMaybes [_pathSummary, _pathDescription] ["summary", "description"]
+    pairMaybes [_pathSummary, _pathDescription, _pathRef] ["summary", "description", "$ref"]
     <>
     foldr (\Operation{..} a ->
             ((toLower . pack . show) _operationType .= Operation{..}):a)
           [] _pathOperations
+    <>
+    ["servers" .= _pathServers]
 
 instance ToJSON Contact where
   toJSON Contact{..} = object $

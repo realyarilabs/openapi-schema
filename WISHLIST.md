@@ -14,9 +14,9 @@
 ## Good first issues:
 
 - Improve Errors structure
-- Add reference string, Servers and Parameters to Path
+- Add Parameters to Path
 - Add parameters, id, requestbody, servers and security to Operation
--- Add headers to Response
+- Add headers to Response
 
 ## CircleCI
 

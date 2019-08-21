@@ -37,8 +37,10 @@ data PathErr = InvalidNameP
              | InvalidSummaryP
              | InvalidDescriptionP
              | InvalidOperation OperationErr
+             | InvalidServerP ServerErr
              | NoOperations
              | RepResponses
+             | InvalidReferenceP
              deriving (Eq, Show)
 
 data OperationErr = InvalidTags
