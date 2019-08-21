@@ -12,7 +12,6 @@ import           Data.Text (Text, strip)
 import qualified Data.Text as T
 import           Data.Text.Read
 import           Data.Traversable (sequence)
-import           OpenAPI.Types (Responses (..))
 
 
 {-
@@ -101,7 +100,3 @@ cond p f g = either f g . grd p where
   grd :: (a -> Bool) -> a -> Either a a
   grd pr x = if pr x then Left x else Right x
 
-
-isDefault :: Responses -> Bool
-isDefault (Default _)  = True
-isDefault (Status _ _) = False

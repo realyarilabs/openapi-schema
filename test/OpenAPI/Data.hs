@@ -124,7 +124,6 @@ invalidOperationPostDefault :: Either OperationErr Operation
 invalidOperationPostDefault = configOperation $ do
   typeOperation POST
   defaultResponseOperation validResponseOk
-  defaultResponseOperation validResponseOk
 
 --  Response
 validResponseOk :: Either ResponseErr Response

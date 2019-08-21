@@ -46,8 +46,8 @@ data OperationErr = InvalidTags
                   | InvalidDescriptionO
                   | InvalidType
                   | NoResponses
-                  | InvalidResponse ResponseErr
-                  | MoreThanOneDefault
+                  | NoDefault
+                  | InvalidResponses ResponsesErr
                   deriving (Eq, Show)
 
 data ServerErr = InvalidURLS
@@ -63,3 +63,10 @@ data ResponseErr = InvalidDescriptionR
 data SecReqErr = InvalidNameSecR
                | InvalidEmptyScope
                deriving (Eq, Show)
+
+data ReferenceErr = InvalidEmptyReference
+                  deriving (Eq, Show)
+
+data ResponsesErr = InvalidResponse ResponseErr
+                  | InvalidReferenceR ReferenceErr
+                  deriving (Eq, Show)

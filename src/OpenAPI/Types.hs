@@ -38,15 +38,15 @@ data Operation = Operation
   , _operationTags        :: [Text]
   , _operationSummary     :: Maybe Text
   , _operationDescription :: Maybe Text
-  , _operationResponses   :: [Responses]
+  , _operationResponses   :: HashMap Text Responses
   } deriving (Eq, Show)
 
-data Responses  = Default Response
-                | Status Text Response
-                deriving (Eq, Show)
+data Responses = ResponsesR Response
+               | ResponsesRef Reference
+               deriving (Eq, Show)
 
-data Response = Response -- add json
-  { _responseDescription   :: Text
+data Response = Response
+  { _responseDescription :: Text
   }
   deriving (Eq, Show)
 
@@ -88,6 +88,10 @@ data SecReq = SecReq
   , _secReqScope :: [Text]
   } deriving (Eq, Show)
 
+data Reference = Reference
+  { _refReference  :: Text
+  } deriving (Eq, Show)
+
 $(makeLenses ''OpenAPI)
 $(makeLenses ''Info)
 $(makeLenses ''Path)
@@ -98,8 +102,12 @@ $(makeLenses ''Contact)
 $(makeLenses ''License)
 $(makeLenses ''ServerVar)
 $(makeLenses ''SecReq)
+$(makeLenses ''Reference)
 
 
+
+instance ToJSON Reference where
+  toJSON Reference{..} = Object $ "$ref" .= _refReference
 
 instance ToJSON SecReq where
   toJSON SecReq{..} = Object $ _secReqName .= _secReqScope
@@ -107,16 +115,17 @@ instance ToJSON SecReq where
 instance ToJSON Response where
   toJSON Response{..} = Object $ "description" .= _responseDescription
 
+instance ToJSON Responses where
+  toJSON (ResponsesR r)   = toJSON r
+  toJSON (ResponsesRef r) = toJSON r
+
 instance ToJSON Operation where
   toJSON Operation{..} =  object $
-    pairMaybes [_operationDescription, _operationSummary]
-                ["description", "summary"]
+    pairMaybes [_operationDescription, _operationSummary] ["description", "summary"]
     <>
     ["tags" .= _operationTags]
     <>
-    ["responses" .=  HM.fromList (foldr getPair [] _operationResponses) ] where
-      getPair (Default r)  a = ("default",r):a
-      getPair (Status s r) a = (s,r):a
+    ["responses" .=  _operationResponses ]
 
 instance ToJSON Path where
   toJSON Path{..} = object $

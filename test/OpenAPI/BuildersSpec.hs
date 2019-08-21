@@ -93,7 +93,7 @@ spec =
       it "requires at least one valid Response" $
         invalidOperationPostNoReps `shouldBe` Left NoResponses
       it "requires that only one Default Response is present" $
-        invalidOperationPostDefault `shouldBe` Left MoreThanOneDefault
+        isRight invalidOperationPostDefault `shouldBe` True
       it "when present, all tags must be non-empty" $
         invalidOperationPostTags `shouldBe` Left InvalidTags
 

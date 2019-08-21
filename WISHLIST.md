@@ -8,13 +8,15 @@
 
 ## Builders
 
-- The `Paths`s and `Operation`s could be in a `Set`
+- The `Paths`s could be in a `Set`
 
 
 ## Good first issues:
 
 - Improve Errors structure
-
+- Add reference string, Servers and Parameters to Path
+- Add parameters, id, requestbody, servers and security to Operation
+-- Add headers to Response
 
 ## CircleCI
 
