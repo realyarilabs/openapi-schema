@@ -94,21 +94,21 @@ data Reference = Reference
   { _refReference  :: Text
   } deriving (Eq, Show)
 
-data QueryParameter = QueryParameter
-  { _queryParameterName            :: Text
-  , _queryParameterDescription     :: Maybe Text
-  , _queryParameterRequired        :: Bool
-  , _queryParameterDeprecated      :: Bool
-  , _queryParameterAllowEmptyValue :: Bool
+data ParameterType = HEADER
+                   | QUERY
+                   | PATH
+                   | COOKIE
+                   deriving (Eq, Show)
+
+data Parameter = Parameter
+  { _parameterName            :: Text
+  , _parameterIn              :: ParameterType
+  , _parameterDescription     :: Maybe Text
+  , _parameterRequired        :: Bool
+  , _parameterDeprecated      :: Bool
+  , _parameterAllowEmptyValue :: Bool
   } deriving (Eq, Show)
 
-data HeaderParameter = HeaderParameter
-  { _headerParameterName            :: Text
-  , _headerParameterDescription     :: Maybe Text
-  , _headerParameterRequired        :: Bool
-  , _headerParameterDeprecated      :: Bool
-  , _headerParameterAllowEmptyValue :: Bool
-  } deriving (Eq, Show)
 
 $(makeLenses ''OpenAPI)
 $(makeLenses ''Info)
@@ -121,7 +121,7 @@ $(makeLenses ''License)
 $(makeLenses ''ServerVar)
 $(makeLenses ''SecReq)
 $(makeLenses ''Reference)
-$(makeLenses ''QueryParameter)
+$(makeLenses ''Parameter)
 
 
 
@@ -204,25 +204,22 @@ instance ToJSON Server where
     <>
     ["variables" .= _serverVars]
 
-instance ToJSON QueryParameter where
-  toJSON QueryParameter{..} = object $
-    ["name" .= _queryParameterName, "in" .= ("query" :: Text)]
+instance ToJSON Parameter where
+  toJSON Parameter{..} = object $
+    ["name" .= _parameterName, "in" .= _parameterIn]
     <>
-    pairMaybes [_queryParameterDescription] ["description"]
+    pairMaybes [_parameterDescription] ["description"]
     <>
-    ["required" .= _queryParameterRequired, "deprecated" .= _queryParameterDeprecated]
+    ["required" .= _parameterRequired, "deprecated" .= _parameterDeprecated]
     <>
-    ["allowEmptyValue" .= _queryParameterAllowEmptyValue]
+    ["allowEmptyValue" .= _parameterAllowEmptyValue]
 
-instance ToJSON HeaderParameter where
-  toJSON HeaderParameter{..} = object $
-    ["name" .= _headerParameterName, "in" .= ("header" :: Text)]
-    <>
-    pairMaybes [_headerParameterDescription] ["description"]
-    <>
-    ["required" .= _headerParameterRequired, "deprecated" .= _headerParameterDeprecated]
-    <>
-    ["allowEmptyValue" .= _headerParameterAllowEmptyValue]
+instance ToJSON ParameterType where
+  toJSON HEADER = String "header"
+  toJSON QUERY  = String "query"
+  toJSON PATH   = String "path"
+  toJSON COOKIE = String "cookie"
+
 {-
    Some records have optional fields, this are represented by a `Maybe a`. When
    generating the JSON representation we do not want to have fields with the
