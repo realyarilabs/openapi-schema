@@ -102,6 +102,14 @@ data QueryParameter = QueryParameter
   , _queryParameterAllowEmptyValue :: Bool
   } deriving (Eq, Show)
 
+data HeaderParameter = HeaderParameter
+  { _headerParameterName            :: Text
+  , _headerParameterDescription     :: Maybe Text
+  , _headerParameterRequired        :: Bool
+  , _headerParameterDeprecated      :: Bool
+  , _headerParameterAllowEmptyValue :: Bool
+  } deriving (Eq, Show)
+
 $(makeLenses ''OpenAPI)
 $(makeLenses ''Info)
 $(makeLenses ''Path)
@@ -206,6 +214,15 @@ instance ToJSON QueryParameter where
     <>
     ["allowEmptyValue" .= _queryParameterAllowEmptyValue]
 
+instance ToJSON HeaderParameter where
+  toJSON HeaderParameter{..} = object $
+    ["name" .= _headerParameterName, "in" .= ("header" :: Text)]
+    <>
+    pairMaybes [_headerParameterDescription] ["description"]
+    <>
+    ["required" .= _headerParameterRequired, "deprecated" .= _headerParameterDeprecated]
+    <>
+    ["allowEmptyValue" .= _headerParameterAllowEmptyValue]
 {-
    Some records have optional fields, this are represented by a `Maybe a`. When
    generating the JSON representation we do not want to have fields with the

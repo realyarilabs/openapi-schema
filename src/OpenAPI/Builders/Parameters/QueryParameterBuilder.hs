@@ -28,12 +28,12 @@ data QueryParameterB = QueryParameterB
 
 $(makeLenses ''QueryParameterB)
 
-configQueryParameter :: QueryParameterBuilder -> Either QueryParameterErr QueryParameter
+configQueryParameter :: QueryParameterBuilder -> Either ParameterErr QueryParameter
 configQueryParameter = convertP . flip execState emptyQueryParameterB
 
-convertP :: QueryParameterB -> Either QueryParameterErr QueryParameter
-convertP (QueryParameterB n d r dep e) | emptyTxt n = Left InvalidNameQueryParameter
-                                       | emptyTxtMaybe d = Left InvalidDescriptionQueryParamter
+convertP :: QueryParameterB -> Either ParameterErr QueryParameter
+convertP (QueryParameterB n d r dep e) | emptyTxt n = Left InvalidNameParameter
+                                       | emptyTxtMaybe d = Left InvalidDescriptionParameter
                                        | otherwise = pure $ QueryParameter n d r dep e
 
 nameQueryParameter :: Text -> QueryParameterBuilder

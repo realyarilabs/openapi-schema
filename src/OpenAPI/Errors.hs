@@ -73,5 +73,6 @@ data ResponsesErr = InvalidResponse ResponseErr
                   | InvalidReferenceR ReferenceErr
                   deriving (Eq, Show)
 
-data QueryParameterErr = InvalidNameQueryParameter
-                       | InvalidDescriptionQueryParamter
+data ParameterErr = InvalidNameParameter
+                  | InvalidDescriptionParameter
+                  deriving (Eq, Show)
