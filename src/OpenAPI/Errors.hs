@@ -72,3 +72,6 @@ data ReferenceErr = InvalidEmptyReference
 data ResponsesErr = InvalidResponse ResponseErr
                   | InvalidReferenceR ReferenceErr
                   deriving (Eq, Show)
+
+data QueryParameterErr = InvalidNameQueryParameter
+                       | InvalidDescriptionQueryParamter

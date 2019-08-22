@@ -11,6 +11,7 @@ module OpenAPI.Builders
     , module OpenAPI.Builders.ServerBuilder
     , module OpenAPI.Builders.SecReqBuilder
     , module OpenAPI.Builders.ReferenceBuilder
+    , module OpenAPI.Builders.Parameters
     , info
     , license
     , contact
@@ -26,6 +27,7 @@ import OpenAPI.Builders.InfoBuilder
 import OpenAPI.Builders.LicenseBuilder
 import OpenAPI.Builders.OpenAPIBuilder
 import OpenAPI.Builders.OperationBuilder
+import OpenAPI.Builders.Parameters
 import OpenAPI.Builders.PathBuilder
 import OpenAPI.Builders.ReferenceBuilder
 import OpenAPI.Builders.ResponseBuilder

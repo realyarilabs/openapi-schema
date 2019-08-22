@@ -94,6 +94,14 @@ data Reference = Reference
   { _refReference  :: Text
   } deriving (Eq, Show)
 
+data QueryParameter = QueryParameter
+  { _queryParameterName            :: Text
+  , _queryParameterDescription     :: Maybe Text
+  , _queryParameterRequired        :: Bool
+  , _queryParameterDeprecated      :: Bool
+  , _queryParameterAllowEmptyValue :: Bool
+  } deriving (Eq, Show)
+
 $(makeLenses ''OpenAPI)
 $(makeLenses ''Info)
 $(makeLenses ''Path)
@@ -105,6 +113,7 @@ $(makeLenses ''License)
 $(makeLenses ''ServerVar)
 $(makeLenses ''SecReq)
 $(makeLenses ''Reference)
+$(makeLenses ''QueryParameter)
 
 
 
@@ -187,6 +196,15 @@ instance ToJSON Server where
     <>
     ["variables" .= _serverVars]
 
+instance ToJSON QueryParameter where
+  toJSON QueryParameter{..} = object $
+    ["name" .= _queryParameterName, "in" .= ("query" :: Text)]
+    <>
+    pairMaybes [_queryParameterDescription] ["description"]
+    <>
+    ["required" .= _queryParameterRequired, "deprecated" .= _queryParameterDeprecated]
+    <>
+    ["allowEmptyValue" .= _queryParameterAllowEmptyValue]
 
 {-
    Some records have optional fields, this are represented by a `Maybe a`. When
