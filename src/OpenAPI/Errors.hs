@@ -34,6 +34,7 @@ data LicenseErr = InvalidNameL
 
 
 data PathErr = InvalidNameP
+             | InvalidParameterP
              | InvalidSummaryP
              | InvalidDescriptionP
              | InvalidOperation OperationErr

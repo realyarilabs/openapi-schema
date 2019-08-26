@@ -9,14 +9,13 @@
 ## Builders
 
 - The `Paths`s could be in a `Set`
-
+- Add Schema to Parameters
+- Add parameters, id, requestbody, servers and security to Operation
+- Add headers to Response
 
 ## Good first issues:
 
 - Improve Errors structure
-- Add Parameters to Path
-- Add parameters, id, requestbody, servers and security to Operation
-- Add headers to Response
 
 ## CircleCI
 

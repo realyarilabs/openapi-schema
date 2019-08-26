@@ -221,3 +221,5 @@ language_extensions:
   - TemplateHaskell
   - OverloadedStrings
   - RecordWildCards
+  - DerivingVia
+  - DeriveTraversable

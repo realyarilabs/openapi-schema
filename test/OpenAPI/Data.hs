@@ -47,6 +47,14 @@ validPathFoo = configPath $ do
   descriptionPath "Foo resource"
   operationPath validOperationGet
   operationPath validOperationPost
+  serverPath validServer2
+  parameterPath validParameterPath
+
+validParameterPath :: Either ParameterErr Parameter
+validParameterPath = configParameter $ do
+      nameParameter "ola"
+      typeParameter HEADER
+
 
 invalidPathFooRep :: Either PathErr Path
 invalidPathFooRep = configPath $ do

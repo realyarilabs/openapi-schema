@@ -1,13 +1,27 @@
-{-# LANGUAGE OverloadedStrings, RecordWildCards, TemplateHaskell #-}
+{-# LANGUAGE DeriveTraversable, DerivingVia, OverloadedStrings, RecordWildCards, TemplateHaskell #-}
 module OpenAPI.Types where
 
 import           Control.Monad (join)
 import           Data.Aeson
+import           Data.Bifunctor
 import           Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HM
 import           Data.Maybe (isNothing)
 import           Data.Text (Text, pack, toLower)
 import           Lens.Micro.TH
+
+
+newtype MkRef a b = MkRef (Either a b)
+  deriving Bifunctor via Either
+  deriving (Functor, Applicative, Foldable, Monad) via Either a
+  deriving (Eq, Show) via (Either a b)
+  deriving stock  Traversable
+
+type Referenceable a = MkRef a Reference
+
+instance (ToJSON b, ToJSON a) => ToJSON (MkRef a b) where
+  toJSON (MkRef (Left x))  = toJSON x
+  toJSON (MkRef (Right x)) = toJSON x
 
 data OpenAPI = OpenAPI
   { _openAPI      :: Text
@@ -31,6 +45,7 @@ data Path = Path
   , _pathRef         :: Maybe Text
   , _pathSummary     :: Maybe Text
   , _pathDescription :: Maybe Text
+  , _pathParameters  :: [Referenceable Parameter]
   , _pathServers     :: [Server]
   , _pathOperations  :: [Operation]
   } deriving (Eq, Show)
@@ -109,6 +124,17 @@ data Parameter = Parameter
   , _parameterAllowEmptyValue :: Bool
   } deriving (Eq, Show)
 
+data Schema = Schema
+  { _schemaNullabe    :: Bool
+  --, _schemaDiscriminator :: Discriminator
+  , _schemaReadOnly   :: Bool
+  , _schemaWriteOnly  :: Bool
+  --, _schemaXml :: Xml
+ -- , _schemaExternalDocs :: ExternalDocs
+  , _schemaExample    :: Maybe Text
+  , _schemaDeprecated :: Bool
+  } deriving (Eq, Show)
+
 
 $(makeLenses ''OpenAPI)
 $(makeLenses ''Info)
@@ -155,6 +181,8 @@ instance ToJSON Path where
           [] _pathOperations
     <>
     ["servers" .= _pathServers]
+    <>
+    ["parameters" .= _pathParameters]
 
 instance ToJSON Contact where
   toJSON Contact{..} = object $
@@ -229,3 +257,4 @@ instance ToJSON ParameterType where
 -}
 pairMaybes :: (ToJSON a, KeyValue b) => [Maybe a] -> [Text] -> [b]
 pairMaybes a b = join $ zipWith (\x y -> if isNothing x then [] else [y .= x]) a b
+

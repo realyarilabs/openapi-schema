@@ -12,6 +12,7 @@ import           Data.Text (Text, strip)
 import qualified Data.Text as T
 import           Data.Text.Read
 import           Data.Traversable (sequence)
+import           OpenAPI.Types
 
 
 {-
@@ -75,7 +76,7 @@ isValidVersionNumber = uncurry (&&) . (rightFormat &&& rightDivision . nullText)
     - `fl` gets the [b]
     - `fe` transforms the `b`s in `a`s
 -}
-noRepRecord :: (Ord a, Eq b) => (t -> [b]) -> (b -> a) -> c -> t -> Either c t
+noRepRecord :: (Ord a) => (t -> [b]) -> (b -> a) -> c -> t -> Either c t
 noRepRecord fl fe err r = cond (allDifferent fe) (const (Right r)) (const (Left err)) $ fl r
 
 
@@ -89,8 +90,8 @@ maybeRight = either (const Nothing) id . sequence
   Very if all list elements are unique.
   Even though `tail` is not total, it will never be called on an empty list.
 -}
-allDifferent :: (Ord a, Eq b) => (b -> a) -> [b] -> Bool
-allDifferent f = all (null . tail) . group . sortOn f
+allDifferent :: (Ord a) => (b -> a) -> [b] -> Bool
+allDifferent f = all (null . tail) . group . sort . fmap f
 
 {-
   Point free if then else, by J.N.O.
@@ -100,3 +101,10 @@ cond p f g = either f g . grd p where
   grd :: (a -> Bool) -> a -> Either a a
   grd pr x = if pr x then Left x else Right x
 
+
+foldRefProds :: [MkRef (Either a b) (Either c d)] -> Maybe (Either a c)
+foldRefProds [] = Nothing
+foldRefProds l = case last l of
+                   MkRef (Left (Left x))  -> pure . Left $ x
+                   MkRef (Right (Left x)) -> pure . pure $ x
+                   _                      -> Nothing
