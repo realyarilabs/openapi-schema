@@ -12,6 +12,9 @@ module OpenAPI.Builders
     , module OpenAPI.Builders.SecReqBuilder
     , module OpenAPI.Builders.ReferenceBuilder
     , module OpenAPI.Builders.ParameterBuilder
+    , module OpenAPI.Builders.DiscriminatorBuilder
+    , module OpenAPI.Builders.XmlBuilder
+    , module OpenAPI.Builders.ExternalDocsBuilder
     , info
     , license
     , contact
@@ -23,6 +26,8 @@ module OpenAPI.Builders
 
 import Data.Text (Text)
 import OpenAPI.Builders.ContactBuilder
+import OpenAPI.Builders.DiscriminatorBuilder
+import OpenAPI.Builders.ExternalDocsBuilder
 import OpenAPI.Builders.InfoBuilder
 import OpenAPI.Builders.LicenseBuilder
 import OpenAPI.Builders.OpenAPIBuilder
@@ -34,7 +39,7 @@ import OpenAPI.Builders.ResponseBuilder
 import OpenAPI.Builders.SecReqBuilder
 import OpenAPI.Builders.ServerBuilder
 import OpenAPI.Builders.ServerVarBuilder
-
+import OpenAPI.Builders.XmlBuilder
 
 info :: InfoBuilder -> OpenAPIBuilder
 info = infoOpenAPI . configInfo

@@ -78,3 +78,23 @@ data ParameterErr = InvalidNameParameter
                   | InvalidDescriptionParameter
                   | InvalidTypeParameter
                   deriving (Eq, Show)
+
+data DiscriminatorErr = InvalidNameDiscriminator
+                      | InvalidMappingDiscriminator
+                      deriving (Eq, Show)
+
+data XmlErr = InvalidNameXml
+            | InvalidNameSpaceXml
+            | InvalidPrefixXml
+            deriving (Eq, Show)
+
+data ExternalDocsErr = InvalidDescriptionDocs
+                     | InvalidURLDocs
+                     deriving (Eq, Show)
+
+data SchemaErr = DiscriminatorError DiscriminatorErr
+               | XmlError XmlErr
+               | DocsError ExternalDocsErr
+               | WriteAndReadOnly
+               | InvalidExampleSchema
+               deriving (Eq, Show)

@@ -10,7 +10,6 @@ import           Data.Maybe (isNothing)
 import           Data.Text (Text, pack, toLower)
 import           Lens.Micro.TH
 
-
 newtype MkRef a b = MkRef (Either a b)
   deriving Bifunctor via Either
   deriving (Functor, Applicative, Foldable, Monad) via Either a
@@ -125,16 +124,33 @@ data Parameter = Parameter
   } deriving (Eq, Show)
 
 data Schema = Schema
-  { _schemaNullabe    :: Bool
-  --, _schemaDiscriminator :: Discriminator
-  , _schemaReadOnly   :: Bool
-  , _schemaWriteOnly  :: Bool
-  --, _schemaXml :: Xml
- -- , _schemaExternalDocs :: ExternalDocs
-  , _schemaExample    :: Maybe Text
-  , _schemaDeprecated :: Bool
+  { _schemaNullabe       :: Bool
+  , _schemaDiscriminator :: Discriminator
+  , _schemaReadOnly      :: Bool
+  , _schemaWriteOnly     :: Bool
+  , _schemaXml           :: Xml
+  , _schemaExternalDocs  :: ExternalDocs
+  , _schemaExample       :: Maybe Text
+  , _schemaDeprecated    :: Bool
   } deriving (Eq, Show)
 
+data Discriminator = Discriminator
+  { _discriminatorPropertyName :: Text
+  , _discriminatorMapping      :: HashMap Text Text
+  } deriving (Eq, Show)
+
+data Xml = Xml
+  { _xmlName      :: Text
+  , _xmlNameSpace :: Text
+  , _xmlPrefix    :: Text
+  , _xmlAttribute :: Bool
+  , _xmlWrapped   :: Bool
+  } deriving (Eq, Show)
+
+data ExternalDocs = ExternalDocs
+  { _externalDocsDescription :: Maybe Text
+  , _externalDocsURL         :: Text
+  } deriving (Eq, Show)
 
 $(makeLenses ''OpenAPI)
 $(makeLenses ''Info)
@@ -247,6 +263,36 @@ instance ToJSON ParameterType where
   toJSON QUERY  = String "query"
   toJSON PATH   = String "path"
   toJSON COOKIE = String "cookie"
+
+instance ToJSON Schema where
+  toJSON Schema{..} = object $
+    ["nullable" .= _schemaNullabe]
+    <>
+    ["readOnly" .= _schemaReadOnly, "writeOnly" .= _schemaWriteOnly]
+    <>
+    ["deprecated" .= _schemaDeprecated]
+    <>
+    ["discriminator" .= _schemaDiscriminator, "xml" .= _schemaDiscriminator]
+    <>
+    ["externalDocs" .= _schemaExternalDocs]
+    <>
+    pairMaybes [_schemaExample] ["example"]
+
+instance ToJSON Discriminator where
+  toJSON Discriminator{..} = object $
+    ["propertyName" .= _discriminatorPropertyName, "mapping" .= _discriminatorMapping]
+
+instance ToJSON Xml where
+  toJSON Xml{..} = object $
+    ["name" .= _xmlName, "namespace" .= _xmlNameSpace, "prefix" .= _xmlPrefix]
+    <>
+    ["attribute" .= _xmlAttribute, "wrapped" .= _xmlWrapped]
+
+instance ToJSON ExternalDocs where
+  toJSON ExternalDocs{..} = object $
+    ["url" .= _externalDocsURL]
+    <>
+    pairMaybes [_externalDocsDescription] ["description"]
 
 {-
    Some records have optional fields, this are represented by a `Maybe a`. When
