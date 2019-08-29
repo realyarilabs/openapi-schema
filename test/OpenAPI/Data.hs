@@ -54,6 +54,9 @@ validParameterPath :: Either ParameterErr Parameter
 validParameterPath = configParameter $ do
       nameParameter "ola"
       typeParameter HEADER
+      schemaRefParameter $
+        configReference $
+          referenceRef "test"
 
 
 invalidPathFooRep :: Either PathErr Path

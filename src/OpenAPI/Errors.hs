@@ -76,6 +76,8 @@ data ResponsesErr = InvalidResponse ResponseErr
 
 data ParameterErr = InvalidNameParameter
                   | InvalidDescriptionParameter
+                  | InvalidSchemaParameter SchemaErr
+                  | InvalidSchemaRefParameter ReferenceErr
                   | InvalidTypeParameter
                   deriving (Eq, Show)
 

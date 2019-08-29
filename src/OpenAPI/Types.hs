@@ -121,6 +121,7 @@ data Parameter = Parameter
   , _parameterRequired        :: Bool
   , _parameterDeprecated      :: Bool
   , _parameterAllowEmptyValue :: Bool
+  , _parameterSchema          :: Referenceable Schema
   } deriving (Eq, Show)
 
 data Schema = Schema
@@ -257,6 +258,8 @@ instance ToJSON Parameter where
     ["required" .= _parameterRequired, "deprecated" .= _parameterDeprecated]
     <>
     ["allowEmptyValue" .= _parameterAllowEmptyValue]
+    <>
+    ["schema" .= _parameterSchema]
 
 instance ToJSON ParameterType where
   toJSON HEADER = String "header"
