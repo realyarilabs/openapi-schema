@@ -108,3 +108,7 @@ data SchemaErr = DiscriminatorError DiscriminatorErr
 
 data MediaTypeErr = InvalidExampleMediaType
                   deriving (Eq, Show)
+
+data RequestBodyErr = InvalidDescriptionRequestBody
+                    | InvalidMediaR MediaTypeErr
+                    deriving (Eq, Show)

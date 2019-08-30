@@ -3,6 +3,7 @@ module OpenAPI.Builders
       module OpenAPI.Builders.ContactBuilder
     , module OpenAPI.Builders.InfoBuilder
     , module OpenAPI.Builders.MediaTypeBuilder
+    , module OpenAPI.Builders.RequestBodyBuilder
     , module OpenAPI.Builders.LicenseBuilder
     , module OpenAPI.Builders.PathBuilder
     , module OpenAPI.Builders.OpenAPIBuilder
@@ -37,6 +38,7 @@ import OpenAPI.Builders.OperationBuilder
 import OpenAPI.Builders.ParameterBuilder
 import OpenAPI.Builders.PathBuilder
 import OpenAPI.Builders.ReferenceBuilder
+import OpenAPI.Builders.RequestBodyBuilder
 import OpenAPI.Builders.ResponseBuilder
 import OpenAPI.Builders.SecReqBuilder
 import OpenAPI.Builders.ServerBuilder
