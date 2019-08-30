@@ -9,7 +9,6 @@
 ## Builders
 
 - The `Paths`s could be in a `Set`
-- Add parameters, id, requestbody, servers and security to Operation
 - Add headers to Response
 
 ## Good first issues:

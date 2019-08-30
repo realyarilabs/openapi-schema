@@ -10,15 +10,23 @@ module OpenAPI.Builders.OperationBuilder
   , statusResponseOperationRef
   , defaultResponseOperation
   , defaultResponseOperationRef
+  , docsOperation
+  , idOperation
+  , parameterOperation
+  , parameterRefOperation
+  , deprecatedOperation
+  , securityOperation
+  , serverOperation
   , OperationBuilder
   ) where
 
 import           Control.Monad.State (State, execState, modify)
-import           Data.Bifunctor (bimap)
+import           Data.Bifunctor (bimap, first)
 import           Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HM
+import           Data.Maybe (isJust)
 import           Data.Text (Text)
-import           Lens.Micro ((%~), (.~), (?~))
+import           Lens.Micro
 import           Lens.Micro.TH
 import           OpenAPI.Errors
 import           OpenAPI.Types
@@ -32,6 +40,13 @@ data OperationB = OperationB
   , _operationSummaryB     :: Maybe Text
   , _operationDescriptionB :: Maybe Text
   , _operationResponsesB   :: HashMap Text (Either ResponsesErr Responses)
+  , _operationDocsB        :: Maybe (Either ExternalDocsErr ExternalDocs)
+  , _operationIdB          :: Maybe Text
+  , _operationParametersB  :: [MkRef (Either ParameterErr Parameter) (Either ReferenceErr Reference)]
+  -- , _operationRequestBody :: Referenceable RequestBody
+  , _operationDeprecatedB  :: Bool
+  , _operationSecurityB    :: [Either SecReqErr SecReq]
+  , _operationServersB     :: [Either ServerErr Server]
   } deriving (Eq, Show)
 
 $(makeLenses ''OperationB)
@@ -40,13 +55,22 @@ configOperation :: OperationBuilder -> Either OperationErr Operation
 configOperation = convertO . flip execState emptyOperationB
 
 convertO :: OperationB -> Either OperationErr Operation
-convertO (OperationB (Left _) _ _ _ _)    = Left InvalidType
-convertO (OperationB (Right t) ts s d rs) | emptyTxts ts = Left InvalidTags
-                                          | HM.null rs = Left NoResponses
-                                          | notElem "default" . HM.keys $ rs = Left NoDefault
-                                          | emptyTxtMaybe s = Left InvalidSummaryO
-                                          | emptyTxtMaybe d = Left InvalidDescriptionO
-                                          | otherwise = foldBuilder InvalidResponses (Operation t ts s d) rs
+convertO OperationB{_operationTypeB = (Left _)} = Left InvalidType
+convertO (OperationB (Right typ) tags su desc resp docs idO pa dep sec serv) | emptyTxts tags = Left InvalidTags
+                                          | HM.null resp = Left NoResponses
+                                          | notElem "default" . HM.keys $ resp = Left NoDefault
+                                          | emptyTxtMaybe su = Left InvalidSummaryO
+                                          | emptyTxtMaybe desc = Left InvalidDescriptionO
+                                          | emptyTxtMaybe idO = Left InvalidIdO
+                                          | isJust . foldRefProds $ pa = Left InvalidParameterO
+                                          | otherwise = do
+                                            res <- first InvalidResponses . sequence $ resp
+                                            security <- first InvalidSecurityO . sequence $ sec
+                                            servers <- first InvalidServerO . sequence $ serv
+                                            docsE <-  first InvalidDocsO . sequence $ docs
+                                            let para = fmap (bimap (^?!_Right) (^?!_Right)) pa -- partial, checked in the last guard
+                                            pure $ Operation typ tags su desc res docsE idO para dep security servers
+
 
 typeOperation :: OperationType -> OperationBuilder
 typeOperation t = modify $ operationTypeB .~ pure t
@@ -76,5 +100,27 @@ statusResponseOperationRef "" _             = modify $ operationResponsesB %~ HM
 statusResponseOperationRef status (Right e) = modify $ operationResponsesB %~ HM.insert status (pure (ResponsesRef e))
 statusResponseOperationRef status (Left e)  = modify $ operationResponsesB %~ HM.insert status (Left (InvalidReferenceR e))
 
+docsOperation :: Either ExternalDocsErr ExternalDocs -> OperationBuilder
+docsOperation docs = modify $ operationDocsB ?~ docs
+
+idOperation :: Text -> OperationBuilder
+idOperation i = modify $ operationIdB ?~ i
+
+parameterOperation :: Either ParameterErr Parameter -> OperationBuilder
+parameterOperation p = modify $ operationParametersB %~ (MkRef (Left p):)
+
+
+parameterRefOperation :: Either ReferenceErr Reference -> OperationBuilder
+parameterRefOperation p = modify $ operationParametersB %~ (MkRef (pure p):)
+
+deprecatedOperation :: OperationBuilder
+deprecatedOperation = modify $ operationDeprecatedB .~ True
+
+securityOperation :: Either SecReqErr SecReq -> OperationBuilder
+securityOperation s = modify $ operationSecurityB %~ (s:)
+
+serverOperation :: Either ServerErr Server -> OperationBuilder
+serverOperation s = modify $ operationServersB %~ (s:)
+
 emptyOperationB :: OperationB
-emptyOperationB = OperationB (Left ()) [] Nothing Nothing HM.empty
+emptyOperationB = OperationB (Left ()) [] Nothing Nothing HM.empty Nothing Nothing [] False [] []

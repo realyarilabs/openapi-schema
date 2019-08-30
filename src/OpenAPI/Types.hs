@@ -55,6 +55,13 @@ data Operation = Operation
   , _operationSummary     :: Maybe Text
   , _operationDescription :: Maybe Text
   , _operationResponses   :: HashMap Text Responses
+  , _operationDocs        :: Maybe ExternalDocs
+  , _operationId          :: Maybe Text
+  , _operationParameters  :: [Referenceable Parameter]
+  -- , _operationRequestBody :: Referenceable RequestBody
+  , _operationDeprecated  :: Bool
+  , _operationSecurity    :: [SecReq]
+  , _operationServers     :: [Server]
   } deriving (Eq, Show)
 
 data Responses = ResponsesR Response
@@ -183,11 +190,19 @@ instance ToJSON Responses where
 
 instance ToJSON Operation where
   toJSON Operation{..} =  object $
-    pairMaybes [_operationDescription, _operationSummary] ["description", "summary"]
+    pairMaybes [_operationDescription, _operationSummary] ["description", "summary"] 
+    <>
+    pairMaybes [_operationDocs] ["externalDocs"]
     <>
     ["tags" .= _operationTags]
     <>
     ["responses" .=  _operationResponses ]
+    <>
+    ["operationId" .= _operationId]
+    <>
+    ["parameters" .= _operationParameters, "security" .= _operationSecurity, "servers" .= _operationServers]
+    <>
+    ["deprecated" .= _operationDeprecated]
 
 instance ToJSON Path where
   toJSON Path{..} = object $

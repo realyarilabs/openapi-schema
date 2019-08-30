@@ -14,6 +14,7 @@ InvalidPath :: PathErr -> OpenAPIErr
 NoPaths :: OpenAPIErr
 RepPaths :: OpenAPIErr
 InvalidServer :: ServerErr -> OpenAPIErr
+InvalidSecurity :: SecReqErr -> OpenAPIErr
 data ServerVarErr
 InvalidDefault :: ServerVarErr
 InvalidEnum :: ServerVarErr
@@ -35,19 +36,27 @@ InvalidNameL :: LicenseErr
 InvalidURLL :: LicenseErr
 data PathErr
 InvalidNameP :: PathErr
+InvalidParameterP :: PathErr
 InvalidSummaryP :: PathErr
 InvalidDescriptionP :: PathErr
 InvalidOperation :: OperationErr -> PathErr
+InvalidServerP :: ServerErr -> PathErr
 NoOperations :: PathErr
 RepResponses :: PathErr
+InvalidReferenceP :: PathErr
 data OperationErr
 InvalidTags :: OperationErr
 InvalidSummaryO :: OperationErr
+InvalidDocsO :: ExternalDocsErr -> OperationErr
+InvalidIdO :: OperationErr
+InvalidParameterO :: OperationErr
 InvalidDescriptionO :: OperationErr
 InvalidType :: OperationErr
 NoResponses :: OperationErr
-InvalidResponse :: ResponseErr -> OperationErr
-MoreThanOneDefault :: OperationErr
+NoDefault :: OperationErr
+InvalidResponses :: ResponsesErr -> OperationErr
+InvalidServerO :: ServerErr -> OperationErr
+InvalidSecurityO :: SecReqErr -> OperationErr
 data ServerErr
 InvalidURLS :: ServerErr
 InvalidDescriptionS :: ServerErr
@@ -56,12 +65,58 @@ InvalidServerVar :: ServerVarErr -> ServerErr
 data ResponseErr
 InvalidDescriptionR :: ResponseErr
 InvalidHttpStatus :: ResponseErr
+data SecReqErr
+InvalidNameSecR :: SecReqErr
+InvalidEmptyScope :: SecReqErr
+data ReferenceErr
+InvalidEmptyReference :: ReferenceErr
+data ResponsesErr
+InvalidResponse :: ResponseErr -> ResponsesErr
+InvalidReferenceR :: ReferenceErr -> ResponsesErr
+data ParameterErr
+InvalidNameParameter :: ParameterErr
+InvalidDescriptionParameter :: ParameterErr
+InvalidSchemaParameter :: SchemaErr -> ParameterErr
+InvalidSchemaRefParameter :: ReferenceErr -> ParameterErr
+InvalidTypeParameter :: ParameterErr
+data DiscriminatorErr
+InvalidNameDiscriminator :: DiscriminatorErr
+InvalidMappingDiscriminator :: DiscriminatorErr
+data XmlErr
+InvalidNameXml :: XmlErr
+InvalidNameSpaceXml :: XmlErr
+InvalidPrefixXml :: XmlErr
+data ExternalDocsErr
+InvalidDescriptionDocs :: ExternalDocsErr
+InvalidURLDocs :: ExternalDocsErr
+data SchemaErr
+DiscriminatorError :: DiscriminatorErr -> SchemaErr
+XmlError :: XmlErr -> SchemaErr
+DocsError :: ExternalDocsErr -> SchemaErr
+WriteAndReadOnly :: SchemaErr
+InvalidExampleSchema :: SchemaErr
+instance GHC.Show.Show OpenAPI.Errors.ParameterErr
+instance GHC.Classes.Eq OpenAPI.Errors.ParameterErr
+instance GHC.Show.Show OpenAPI.Errors.SchemaErr
+instance GHC.Classes.Eq OpenAPI.Errors.SchemaErr
 instance GHC.Show.Show OpenAPI.Errors.OpenAPIErr
 instance GHC.Classes.Eq OpenAPI.Errors.OpenAPIErr
 instance GHC.Show.Show OpenAPI.Errors.PathErr
 instance GHC.Classes.Eq OpenAPI.Errors.PathErr
 instance GHC.Show.Show OpenAPI.Errors.OperationErr
 instance GHC.Classes.Eq OpenAPI.Errors.OperationErr
+instance GHC.Show.Show OpenAPI.Errors.ExternalDocsErr
+instance GHC.Classes.Eq OpenAPI.Errors.ExternalDocsErr
+instance GHC.Show.Show OpenAPI.Errors.XmlErr
+instance GHC.Classes.Eq OpenAPI.Errors.XmlErr
+instance GHC.Show.Show OpenAPI.Errors.DiscriminatorErr
+instance GHC.Classes.Eq OpenAPI.Errors.DiscriminatorErr
+instance GHC.Show.Show OpenAPI.Errors.ResponsesErr
+instance GHC.Classes.Eq OpenAPI.Errors.ResponsesErr
+instance GHC.Show.Show OpenAPI.Errors.ReferenceErr
+instance GHC.Classes.Eq OpenAPI.Errors.ReferenceErr
+instance GHC.Show.Show OpenAPI.Errors.SecReqErr
+instance GHC.Classes.Eq OpenAPI.Errors.SecReqErr
 instance GHC.Show.Show OpenAPI.Errors.ResponseErr
 instance GHC.Classes.Eq OpenAPI.Errors.ResponseErr
 instance GHC.Show.Show OpenAPI.Errors.ServerErr
@@ -76,10 +131,14 @@ instance GHC.Show.Show OpenAPI.Errors.ServerVarErr
 instance GHC.Classes.Eq OpenAPI.Errors.ServerVarErr
 
 module OpenAPI.Types
+newtype MkRef a b
+MkRef :: Either a b -> MkRef a b
+type Referenceable a = MkRef a Reference
 data OpenAPI
-OpenAPI :: Text -> Info -> [Path] -> [Server] -> OpenAPI
+OpenAPI :: Text -> Info -> [SecReq] -> [Path] -> [Server] -> OpenAPI
 [_openAPI] :: OpenAPI -> Text
 [_openInfo] :: OpenAPI -> Info
+[_openSecurity] :: OpenAPI -> [SecReq]
 [_openPaths] :: OpenAPI -> [Path]
 [_openServers] :: OpenAPI -> [Server]
 data Info
@@ -91,21 +150,30 @@ Info :: Text -> Maybe Text -> Maybe Text -> Maybe Contact -> Maybe License -> Te
 [_infoLicense] :: Info -> Maybe License
 [_infoVersion] :: Info -> Text
 data Path
-Path :: Text -> Maybe Text -> Maybe Text -> [Operation] -> Path
+Path :: Text -> Maybe Text -> Maybe Text -> Maybe Text -> [Referenceable Parameter] -> [Server] -> [Operation] -> Path
 [_pathName] :: Path -> Text
+[_pathRef] :: Path -> Maybe Text
 [_pathSummary] :: Path -> Maybe Text
 [_pathDescription] :: Path -> Maybe Text
+[_pathParameters] :: Path -> [Referenceable Parameter]
+[_pathServers] :: Path -> [Server]
 [_pathOperations] :: Path -> [Operation]
 data Operation
-Operation :: OperationType -> Maybe [Text] -> Maybe Text -> Maybe Text -> [Responses] -> Operation
+Operation :: OperationType -> [Text] -> Maybe Text -> Maybe Text -> HashMap Text Responses -> Maybe ExternalDocs -> Maybe Text -> [Referenceable Parameter] -> Bool -> [SecReq] -> [Server] -> Operation
 [_operationType] :: Operation -> OperationType
-[_operationTags] :: Operation -> Maybe [Text]
+[_operationTags] :: Operation -> [Text]
 [_operationSummary] :: Operation -> Maybe Text
 [_operationDescription] :: Operation -> Maybe Text
-[_operationResponses] :: Operation -> [Responses]
+[_operationResponses] :: Operation -> HashMap Text Responses
+[_operationDocs] :: Operation -> Maybe ExternalDocs
+[_operationId] :: Operation -> Maybe Text
+[_operationParameters] :: Operation -> [Referenceable Parameter]
+[_operationDeprecated] :: Operation -> Bool
+[_operationSecurity] :: Operation -> [SecReq]
+[_operationServers] :: Operation -> [Server]
 data Responses
-Default :: Response -> Responses
-Status :: Text -> Response -> Responses
+ResponsesR :: Response -> Responses
+ResponsesRef :: Reference -> Responses
 data Response
 Response :: Text -> Response
 [_responseDescription] :: Response -> Text
@@ -133,11 +201,58 @@ Server :: Text -> Maybe Text -> HashMap Text ServerVar -> Server
 [_serverDescription] :: Server -> Maybe Text
 [_serverVars] :: Server -> HashMap Text ServerVar
 data ServerVar
-ServerVar :: Maybe [Text] -> Text -> Maybe Text -> ServerVar
-[_serverVEnum] :: ServerVar -> Maybe [Text]
+ServerVar :: [Text] -> Text -> Maybe Text -> ServerVar
+[_serverVEnum] :: ServerVar -> [Text]
 [_serverVDefault] :: ServerVar -> Text
 [_serverVDescription] :: ServerVar -> Maybe Text
+data SecReq
+SecReq :: Text -> [Text] -> SecReq
+[_secReqName] :: SecReq -> Text
+[_secReqScope] :: SecReq -> [Text]
+data Reference
+Reference :: Text -> Reference
+[_refReference] :: Reference -> Text
+data ParameterType
+HEADER :: ParameterType
+QUERY :: ParameterType
+PATH :: ParameterType
+COOKIE :: ParameterType
+data Parameter
+Parameter :: Text -> ParameterType -> Maybe Text -> Bool -> Bool -> Bool -> Referenceable Schema -> Parameter
+[_parameterName] :: Parameter -> Text
+[_parameterIn] :: Parameter -> ParameterType
+[_parameterDescription] :: Parameter -> Maybe Text
+[_parameterRequired] :: Parameter -> Bool
+[_parameterDeprecated] :: Parameter -> Bool
+[_parameterAllowEmptyValue] :: Parameter -> Bool
+[_parameterSchema] :: Parameter -> Referenceable Schema
+data Schema
+Schema :: Bool -> Discriminator -> Bool -> Bool -> Xml -> ExternalDocs -> Maybe Text -> Bool -> Schema
+[_schemaNullabe] :: Schema -> Bool
+[_schemaDiscriminator] :: Schema -> Discriminator
+[_schemaReadOnly] :: Schema -> Bool
+[_schemaWriteOnly] :: Schema -> Bool
+[_schemaXml] :: Schema -> Xml
+[_schemaExternalDocs] :: Schema -> ExternalDocs
+[_schemaExample] :: Schema -> Maybe Text
+[_schemaDeprecated] :: Schema -> Bool
+data Discriminator
+Discriminator :: Text -> HashMap Text Text -> Discriminator
+[_discriminatorPropertyName] :: Discriminator -> Text
+[_discriminatorMapping] :: Discriminator -> HashMap Text Text
+data Xml
+Xml :: Text -> Text -> Text -> Bool -> Bool -> Xml
+[_xmlName] :: Xml -> Text
+[_xmlNameSpace] :: Xml -> Text
+[_xmlPrefix] :: Xml -> Text
+[_xmlAttribute] :: Xml -> Bool
+[_xmlWrapped] :: Xml -> Bool
+data ExternalDocs
+ExternalDocs :: Maybe Text -> Text -> ExternalDocs
+[_externalDocsDescription] :: ExternalDocs -> Maybe Text
+[_externalDocsURL] :: ExternalDocs -> Text
 openServers :: Lens' OpenAPI [Server]
+openSecurity :: Lens' OpenAPI [SecReq]
 openPaths :: Lens' OpenAPI [Path]
 openInfo :: Lens' OpenAPI Info
 openAPI :: Lens' OpenAPI Text
@@ -148,25 +263,85 @@ infoLicense :: Lens' Info (Maybe License)
 infoDescription :: Lens' Info (Maybe Text)
 infoContact :: Lens' Info (Maybe Contact)
 pathSummary :: Lens' Path (Maybe Text)
+pathServers :: Lens' Path [Server]
+pathRef :: Lens' Path (Maybe Text)
+pathParameters :: Lens' Path [Referenceable Parameter]
 pathOperations :: Lens' Path [Operation]
 pathName :: Lens' Path Text
 pathDescription :: Lens' Path (Maybe Text)
 operationType :: Lens' Operation OperationType
-operationTags :: Lens' Operation (Maybe [Text])
+operationTags :: Lens' Operation [Text]
 operationSummary :: Lens' Operation (Maybe Text)
-operationResponses :: Lens' Operation [Responses]
+operationServers :: Lens' Operation [Server]
+operationSecurity :: Lens' Operation [SecReq]
+operationResponses :: Lens' Operation (HashMap Text Responses)
+operationParameters :: Lens' Operation [Referenceable Parameter]
+operationId :: Lens' Operation (Maybe Text)
+operationDocs :: Lens' Operation (Maybe ExternalDocs)
 operationDescription :: Lens' Operation (Maybe Text)
+operationDeprecated :: Lens' Operation Bool
 responseDescription :: Lens' Response Text
 contactUrl :: Lens' Contact (Maybe Text)
 contactName :: Lens' Contact (Maybe Text)
 contactEmail :: Lens' Contact (Maybe Text)
 licenseUrl :: Lens' License (Maybe Text)
 licenseName :: Lens' License Text
-serverVEnum :: Lens' ServerVar (Maybe [Text])
+serverVEnum :: Lens' ServerVar [Text]
 serverVDescription :: Lens' ServerVar (Maybe Text)
 serverVDefault :: Lens' ServerVar Text
+secReqScope :: Lens' SecReq [Text]
+secReqName :: Lens' SecReq Text
+refReference :: Lens' Reference Text
+parameterSchema :: Lens' Parameter (Referenceable Schema)
+parameterRequired :: Lens' Parameter Bool
+parameterName :: Lens' Parameter Text
+parameterIn :: Lens' Parameter ParameterType
+parameterDescription :: Lens' Parameter (Maybe Text)
+parameterDeprecated :: Lens' Parameter Bool
+parameterAllowEmptyValue :: Lens' Parameter Bool
+pairMaybes :: (ToJSON a, KeyValue b) => [Maybe a] -> [Text] -> [b]
+instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.Reference
+instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.SecReq
+instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.Response
+instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.Responses
+instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.Operation
+instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.Path
+instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.Contact
+instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.License
+instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.Info
+instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.OpenAPI
+instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.ServerVar
+instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.Server
+instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.Parameter
+instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.ParameterType
+instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.Schema
+instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.Discriminator
+instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.Xml
+instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.ExternalDocs
 instance GHC.Show.Show OpenAPI.Types.OpenAPI
 instance GHC.Classes.Eq OpenAPI.Types.OpenAPI
+instance GHC.Show.Show OpenAPI.Types.Path
+instance GHC.Classes.Eq OpenAPI.Types.Path
+instance GHC.Show.Show OpenAPI.Types.Operation
+instance GHC.Classes.Eq OpenAPI.Types.Operation
+instance GHC.Show.Show OpenAPI.Types.Parameter
+instance GHC.Classes.Eq OpenAPI.Types.Parameter
+instance GHC.Show.Show OpenAPI.Types.Schema
+instance GHC.Classes.Eq OpenAPI.Types.Schema
+instance GHC.Show.Show OpenAPI.Types.ExternalDocs
+instance GHC.Classes.Eq OpenAPI.Types.ExternalDocs
+instance GHC.Show.Show OpenAPI.Types.Xml
+instance GHC.Classes.Eq OpenAPI.Types.Xml
+instance GHC.Show.Show OpenAPI.Types.Discriminator
+instance GHC.Classes.Eq OpenAPI.Types.Discriminator
+instance GHC.Show.Show OpenAPI.Types.ParameterType
+instance GHC.Classes.Eq OpenAPI.Types.ParameterType
+instance GHC.Show.Show OpenAPI.Types.Responses
+instance GHC.Classes.Eq OpenAPI.Types.Responses
+instance GHC.Show.Show OpenAPI.Types.Reference
+instance GHC.Classes.Eq OpenAPI.Types.Reference
+instance GHC.Show.Show OpenAPI.Types.SecReq
+instance GHC.Classes.Eq OpenAPI.Types.SecReq
 instance GHC.Show.Show OpenAPI.Types.Server
 instance GHC.Classes.Eq OpenAPI.Types.Server
 instance GHC.Show.Show OpenAPI.Types.ServerVar
@@ -177,53 +352,48 @@ instance GHC.Show.Show OpenAPI.Types.License
 instance GHC.Classes.Eq OpenAPI.Types.License
 instance GHC.Show.Show OpenAPI.Types.Contact
 instance GHC.Classes.Eq OpenAPI.Types.Contact
-instance GHC.Show.Show OpenAPI.Types.Path
-instance GHC.Classes.Eq OpenAPI.Types.Path
-instance GHC.Show.Show OpenAPI.Types.Operation
-instance GHC.Classes.Eq OpenAPI.Types.Operation
 instance GHC.Classes.Ord OpenAPI.Types.OperationType
 instance GHC.Show.Show OpenAPI.Types.OperationType
 instance GHC.Classes.Eq OpenAPI.Types.OperationType
-instance GHC.Show.Show OpenAPI.Types.Responses
-instance GHC.Classes.Eq OpenAPI.Types.Responses
 instance GHC.Show.Show OpenAPI.Types.Response
 instance GHC.Classes.Eq OpenAPI.Types.Response
-
-module OpenAPI.Builders.ResponseBuilder
-configResponse :: ResponseBuilder -> Either ResponseErr Response
-descriptionResponse :: Text -> ResponseBuilder
-type ResponseBuilder = State ResponseB ()
-instance GHC.Show.Show OpenAPI.Builders.ResponseBuilder.ResponseB
-instance GHC.Classes.Eq OpenAPI.Builders.ResponseBuilder.ResponseB
+instance Data.Traversable.Traversable (OpenAPI.Types.MkRef a)
+instance (GHC.Show.Show a, GHC.Show.Show b) => GHC.Show.Show (OpenAPI.Types.MkRef a b)
+instance (GHC.Classes.Eq a, GHC.Classes.Eq b) => GHC.Classes.Eq (OpenAPI.Types.MkRef a b)
+instance GHC.Base.Monad (OpenAPI.Types.MkRef a)
+instance Data.Foldable.Foldable (OpenAPI.Types.MkRef a)
+instance GHC.Base.Applicative (OpenAPI.Types.MkRef a)
+instance GHC.Base.Functor (OpenAPI.Types.MkRef a)
+instance Data.Bifunctor.Bifunctor OpenAPI.Types.MkRef
+instance (Data.Aeson.Types.ToJSON.ToJSON b, Data.Aeson.Types.ToJSON.ToJSON a) => Data.Aeson.Types.ToJSON.ToJSON (OpenAPI.Types.MkRef a b)
 
 module OpenAPI.Utils
-pairMaybes :: (ToJSON a, KeyValue b) => [Maybe a] -> [Text] -> [b]
 foldBuilder :: Traversable t => (b -> c) -> (t a -> d) -> t (Either b a) -> Either c d
 isValidEmail :: Text -> Bool
 isValidURL :: Text -> Bool
 verifyMaybe :: (a -> Bool) -> Maybe a -> Bool
-noEmptyTxtsMaybe :: Maybe [Text] -> Bool
-noEmptyTxts :: [Text] -> Bool
-noEmptyTxt :: Text -> Bool
-noEmptyTxtMaybe :: Maybe Text -> Bool
+emptyTxtsMaybe :: Maybe [Text] -> Bool
+emptyTxts :: [Text] -> Bool
+emptyTxt :: Text -> Bool
+emptyTxtMaybe :: Maybe Text -> Bool
 isValidVersionNumber :: Text -> Bool
-noRepRecord :: (Ord a, Eq b) => (t -> [b]) -> (b -> a) -> c -> t -> Either c t
+noRepRecord :: Ord a => (t -> [b]) -> (b -> a) -> c -> t -> Either c t
 apIfRight :: Traversable t => c -> (t a -> c) -> t (Either b a) -> c
 maybeRight :: Maybe (Either b a) -> Maybe a
-allDifferent :: (Ord a, Eq a, Eq b) => (b -> a) -> [b] -> Bool
+allDifferent :: Ord a => (b -> a) -> [b] -> Bool
 cond :: (b -> Bool) -> (b -> c) -> (b -> c) -> b -> c
-isDefault :: Responses -> Bool
+foldRefProds :: [MkRef (Either a b) (Either c d)] -> Maybe (Either a c)
 
-module OpenAPI.Json
-instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.Response
-instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.Operation
-instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.Path
-instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.Contact
-instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.License
-instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.Info
-instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.OpenAPI
-instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.ServerVar
-instance Data.Aeson.Types.ToJSON.ToJSON OpenAPI.Types.Server
+module OpenAPI.Builders.XmlBuilder
+configXml :: XmlBuilder -> Either XmlErr Xml
+nameXml :: Text -> XmlBuilder
+nameSpaceXml :: Text -> XmlBuilder
+prefixXml :: Text -> XmlBuilder
+attributeXml :: XmlBuilder
+wrappedXml :: XmlBuilder
+type XmlBuilder = State XmlB ()
+instance GHC.Show.Show OpenAPI.Builders.XmlBuilder.XmlB
+instance GHC.Classes.Eq OpenAPI.Builders.XmlBuilder.XmlB
 
 module OpenAPI.Builders.ServerVarBuilder
 configServerVar :: ServerVarBuilder -> Either ServerVarErr ServerVar
@@ -241,15 +411,68 @@ varServer :: Text -> Either ServerVarErr ServerVar -> ServerBuilder
 descriptionServer :: Text -> ServerBuilder
 type ServerBuilder = State ServerB ()
 
+module OpenAPI.Builders.SecReqBuilder
+configSecReq :: SecReqBuilder -> Either SecReqErr SecReq
+nameSecReq :: Text -> SecReqBuilder
+scopeSeqReq :: Text -> SecReqBuilder
+type SecReqBuilder = State SecReqB ()
+instance GHC.Show.Show OpenAPI.Builders.SecReqBuilder.SecReqB
+instance GHC.Classes.Eq OpenAPI.Builders.SecReqBuilder.SecReqB
+
+module OpenAPI.Builders.SchemaBuilder
+configSchema :: SchemaBuilder -> Either SchemaErr Schema
+nullableSchema :: SchemaBuilder
+discriminatorSchema :: Either DiscriminatorErr Discriminator -> SchemaBuilder
+readOnlySchema :: SchemaBuilder
+writeOnlySchema :: SchemaBuilder
+xmlSchema :: Either XmlErr Xml -> SchemaBuilder
+externalDocsSchema :: Either ExternalDocsErr ExternalDocs -> SchemaBuilder
+exampleSchema :: Text -> SchemaBuilder
+deprecatedSchema :: SchemaBuilder
+type SchemaBuilder = State SchemaB ()
+instance GHC.Show.Show OpenAPI.Builders.SchemaBuilder.SchemaB
+instance GHC.Classes.Eq OpenAPI.Builders.SchemaBuilder.SchemaB
+
+module OpenAPI.Builders.ResponseBuilder
+configResponse :: ResponseBuilder -> Either ResponseErr Response
+descriptionResponse :: Text -> ResponseBuilder
+type ResponseBuilder = State ResponseB ()
+instance GHC.Show.Show OpenAPI.Builders.ResponseBuilder.ResponseB
+instance GHC.Classes.Eq OpenAPI.Builders.ResponseBuilder.ResponseB
+
+module OpenAPI.Builders.ReferenceBuilder
+configReference :: ReferenceBuilder -> Either ReferenceErr Reference
+referenceRef :: Text -> ReferenceBuilder
+type ReferenceBuilder = State ReferenceB ()
+instance GHC.Show.Show OpenAPI.Builders.ReferenceBuilder.ReferenceB
+instance GHC.Classes.Eq OpenAPI.Builders.ReferenceBuilder.ReferenceB
+
 module OpenAPI.Builders.PathBuilder
 configPath :: PathBuilder -> Either PathErr Path
 namePath :: Text -> PathBuilder
 summaryPath :: Text -> PathBuilder
 descriptionPath :: Text -> PathBuilder
 operationPath :: Either OperationErr Operation -> PathBuilder
+refPath :: Text -> PathBuilder
+serverPath :: Either ServerErr Server -> PathBuilder
+parameterPathRef :: Either ReferenceErr Reference -> PathBuilder
+parameterPath :: Either ParameterErr Parameter -> PathBuilder
 type PathBuilder = State PathB ()
 instance GHC.Show.Show OpenAPI.Builders.PathBuilder.PathB
 instance GHC.Classes.Eq OpenAPI.Builders.PathBuilder.PathB
+
+module OpenAPI.Builders.ParameterBuilder
+configParameter :: ParameterBuilder -> Either ParameterErr Parameter
+nameParameter :: Text -> ParameterBuilder
+refParameter :: Text -> ParameterBuilder
+requiredParameter :: ParameterBuilder
+typeParameter :: ParameterType -> ParameterBuilder
+deprecatedParameter :: ParameterBuilder
+allowEmptyValueParameter :: ParameterBuilder
+schemaParameter :: Either SchemaErr Schema -> ParameterBuilder
+schemaRefParameter :: Either ReferenceErr Reference -> ParameterBuilder
+instance GHC.Show.Show OpenAPI.Builders.ParameterBuilder.ParameterB
+instance GHC.Classes.Eq OpenAPI.Builders.ParameterBuilder.ParameterB
 
 module OpenAPI.Builders.OperationBuilder
 configOperation :: OperationBuilder -> Either OperationErr Operation
@@ -258,7 +481,16 @@ summaryOperation :: Text -> OperationBuilder
 descriptionOperation :: Text -> OperationBuilder
 typeOperation :: OperationType -> OperationBuilder
 statusResponseOperation :: Text -> Either ResponseErr Response -> OperationBuilder
+statusResponseOperationRef :: Text -> Either ReferenceErr Reference -> OperationBuilder
 defaultResponseOperation :: Either ResponseErr Response -> OperationBuilder
+defaultResponseOperationRef :: Either ReferenceErr Reference -> OperationBuilder
+docsOperation :: Either ExternalDocsErr ExternalDocs -> OperationBuilder
+idOperation :: Text -> OperationBuilder
+parameterOperation :: Either ParameterErr Parameter -> OperationBuilder
+parameterRefOperation :: Either ReferenceErr Reference -> OperationBuilder
+deprecatedOperation :: OperationBuilder
+securityOperation :: Either SecReqErr SecReq -> OperationBuilder
+serverOperation :: Either ServerErr Server -> OperationBuilder
 type OperationBuilder = State OperationB ()
 instance GHC.Show.Show OpenAPI.Builders.OperationBuilder.OperationB
 instance GHC.Classes.Eq OpenAPI.Builders.OperationBuilder.OperationB
@@ -268,6 +500,7 @@ config :: State OpenAPIB () -> Either OpenAPIErr OpenAPI
 infoOpenAPI :: Either InfoErr Info -> OpenAPIBuilder
 pathOpenAPI :: Either PathErr Path -> OpenAPIBuilder
 serverOpenAPI :: Either ServerErr Server -> OpenAPIBuilder
+securityOpenAPI :: Either SecReqErr SecReq -> OpenAPIBuilder
 type OpenAPIBuilder = State OpenAPIB ()
 instance GHC.Show.Show OpenAPI.Builders.OpenAPIBuilder.OpenAPIB
 instance GHC.Classes.Eq OpenAPI.Builders.OpenAPIBuilder.OpenAPIB
@@ -291,6 +524,22 @@ versionInfo :: Text -> InfoBuilder
 type InfoBuilder = State InfoB ()
 instance GHC.Show.Show OpenAPI.Builders.InfoBuilder.InfoB
 instance GHC.Classes.Eq OpenAPI.Builders.InfoBuilder.InfoB
+
+module OpenAPI.Builders.ExternalDocsBuilder
+configExternalDocs :: ExternalDocsBuilder -> Either ExternalDocsErr ExternalDocs
+descriptionExternalDocs :: Text -> ExternalDocsBuilder
+urlExternalDocs :: Text -> ExternalDocsBuilder
+type ExternalDocsBuilder = State ExternalDocsB ()
+instance GHC.Show.Show OpenAPI.Builders.ExternalDocsBuilder.ExternalDocsB
+instance GHC.Classes.Eq OpenAPI.Builders.ExternalDocsBuilder.ExternalDocsB
+
+module OpenAPI.Builders.DiscriminatorBuilder
+configDiscriminator :: DiscriminatorBuilder -> Either DiscriminatorErr Discriminator
+nameDiscriminator :: Text -> DiscriminatorBuilder
+mappingDiscriminator :: Text -> Text -> DiscriminatorBuilder
+type DiscriminatorBuilder = State DiscriminatorB ()
+instance GHC.Show.Show OpenAPI.Builders.DiscriminatorBuilder.DiscriminatorB
+instance GHC.Classes.Eq OpenAPI.Builders.DiscriminatorBuilder.DiscriminatorB
 
 module OpenAPI.Builders.ContactBuilder
 configContact :: ContactBuilder -> Either ContactErr Contact

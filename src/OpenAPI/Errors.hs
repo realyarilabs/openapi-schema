@@ -46,11 +46,16 @@ data PathErr = InvalidNameP
 
 data OperationErr = InvalidTags
                   | InvalidSummaryO
+                  | InvalidDocsO ExternalDocsErr
+                  | InvalidIdO
+                  | InvalidParameterO
                   | InvalidDescriptionO
                   | InvalidType
                   | NoResponses
                   | NoDefault
                   | InvalidResponses ResponsesErr
+                  | InvalidServerO ServerErr
+                  | InvalidSecurityO SecReqErr
                   deriving (Eq, Show)
 
 data ServerErr = InvalidURLS
