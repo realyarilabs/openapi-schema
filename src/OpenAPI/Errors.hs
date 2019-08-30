@@ -37,6 +37,7 @@ data PathErr = InvalidNameP
              | InvalidParameterP
              | InvalidSummaryP
              | InvalidDescriptionP
+             | InvalidRequestO
              | InvalidOperation OperationErr
              | InvalidServerP ServerErr
              | NoOperations
@@ -52,6 +53,8 @@ data OperationErr = InvalidTags
                   | InvalidDescriptionO
                   | InvalidType
                   | NoResponses
+                  | InvalidRequestBodyO RequestBodyErr
+                  | InvalidRequestBodyRefO ReferenceErr
                   | NoDefault
                   | InvalidResponses ResponsesErr
                   | InvalidServerO ServerErr

@@ -58,7 +58,7 @@ data Operation = Operation
   , _operationDocs        :: Maybe ExternalDocs
   , _operationId          :: Maybe Text
   , _operationParameters  :: [Referenceable Parameter]
-  -- , _operationRequestBody :: Referenceable RequestBody
+  , _operationRequestBody :: Maybe (Referenceable RequestBody)
   , _operationDeprecated  :: Bool
   , _operationSecurity    :: [SecReq]
   , _operationServers     :: [Server]
@@ -202,6 +202,8 @@ instance ToJSON Operation where
     pairMaybes [_operationDescription, _operationSummary] ["description", "summary"] 
     <>
     pairMaybes [_operationDocs] ["externalDocs"]
+    <>
+    pairMaybes [_operationRequestBody] ["requestBody"]
     <>
     ["tags" .= _operationTags]
     <>
