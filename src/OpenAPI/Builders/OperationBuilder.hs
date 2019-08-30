@@ -17,6 +17,8 @@ module OpenAPI.Builders.OperationBuilder
   , deprecatedOperation
   , securityOperation
   , serverOperation
+  , requestBodyOperation
+  , requestBodyRefOperation
   , OperationBuilder
   ) where
 
@@ -43,7 +45,7 @@ data OperationB = OperationB
   , _operationDocsB        :: Maybe (Either ExternalDocsErr ExternalDocs)
   , _operationIdB          :: Maybe Text
   , _operationParametersB  :: [MkRef (Either ParameterErr Parameter) (Either ReferenceErr Reference)]
-  -- , _operationRequestBody :: Referenceable RequestBody
+  , _operationRequestBodyB :: Maybe (MkRef (Either RequestBodyErr RequestBody) (Either ReferenceErr Reference))
   , _operationDeprecatedB  :: Bool
   , _operationSecurityB    :: [Either SecReqErr SecReq]
   , _operationServersB     :: [Either ServerErr Server]
@@ -51,12 +53,13 @@ data OperationB = OperationB
 
 $(makeLenses ''OperationB)
 
+
 configOperation :: OperationBuilder -> Either OperationErr Operation
 configOperation = convertO . flip execState emptyOperationB
 
 convertO :: OperationB -> Either OperationErr Operation
 convertO OperationB{_operationTypeB = (Left _)} = Left InvalidType
-convertO (OperationB (Right typ) tags su desc resp docs idO pa dep sec serv) | emptyTxts tags = Left InvalidTags
+convertO (OperationB (Right typ) tags su desc resp docs idO pa rb dep sec serv) | emptyTxts tags = Left InvalidTags
                                           | HM.null resp = Left NoResponses
                                           | notElem "default" . HM.keys $ resp = Left NoDefault
                                           | emptyTxtMaybe su = Left InvalidSummaryO
@@ -68,8 +71,16 @@ convertO (OperationB (Right typ) tags su desc resp docs idO pa dep sec serv) | e
                                             security <- first InvalidSecurityO . sequence $ sec
                                             servers <- first InvalidServerO . sequence $ serv
                                             docsE <-  first InvalidDocsO . sequence $ docs
+                                            reqb <- maybe (pure Nothing) foldRequest rb
                                             let para = fmap (bimap (^?!_Right) (^?!_Right)) pa -- partial, checked in the last guard
-                                            pure $ Operation typ tags su desc res docsE idO para dep security servers
+                                            pure $ Operation typ tags su desc res docsE idO para reqb dep security servers
+
+
+foldRequest :: MkRef (Either RequestBodyErr RequestBody) (Either ReferenceErr Reference) -> Either OperationErr (Maybe (Referenceable RequestBody))
+foldRequest (MkRef (Left (Left e)))   = Left . InvalidRequestBodyO $ e
+foldRequest (MkRef (Right (Left e)))  = Left . InvalidRequestBodyRefO $ e
+foldRequest (MkRef (Right (Right e))) = pure . pure . MkRef . pure $ e
+foldRequest (MkRef (Left (Right e)))  = pure . pure . MkRef . Left $ e
 
 
 typeOperation :: OperationType -> OperationBuilder
@@ -122,5 +133,11 @@ securityOperation s = modify $ operationSecurityB %~ (s:)
 serverOperation :: Either ServerErr Server -> OperationBuilder
 serverOperation s = modify $ operationServersB %~ (s:)
 
+requestBodyOperation :: Either RequestBodyErr RequestBody -> OperationBuilder
+requestBodyOperation r = modify $ operationRequestBodyB ?~ MkRef (Left r)
+
+requestBodyRefOperation :: Either ReferenceErr Reference -> OperationBuilder
+requestBodyRefOperation r = modify $ operationRequestBodyB ?~ MkRef (Right r)
+
 emptyOperationB :: OperationB
-emptyOperationB = OperationB (Left ()) [] Nothing Nothing HM.empty Nothing Nothing [] False [] []
+emptyOperationB = OperationB (Left ()) [] Nothing Nothing HM.empty Nothing Nothing [] Nothing False [] []

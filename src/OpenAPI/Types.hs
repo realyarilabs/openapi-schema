@@ -58,11 +58,20 @@ data Operation = Operation
   , _operationDocs        :: Maybe ExternalDocs
   , _operationId          :: Maybe Text
   , _operationParameters  :: [Referenceable Parameter]
-  -- , _operationRequestBody :: Referenceable RequestBody
+  , _operationRequestBody :: Maybe (Referenceable RequestBody)
   , _operationDeprecated  :: Bool
   , _operationSecurity    :: [SecReq]
   , _operationServers     :: [Server]
   } deriving (Eq, Show)
+
+data RequestBody = RequestBody
+  { _requestBodyDescription :: Maybe Text
+  , _requestBodyContent     :: HashMap Text MediaType
+  , _requestBodyRequired    :: Bool
+  } deriving (Eq, Show)
+
+data MediaType = MediaType
+  { _mediaTypeExample :: Text } deriving (Eq, Show)
 
 data Responses = ResponsesR Response
                | ResponsesRef Reference
@@ -194,6 +203,8 @@ instance ToJSON Operation where
     <>
     pairMaybes [_operationDocs] ["externalDocs"]
     <>
+    pairMaybes [_operationRequestBody] ["requestBody"]
+    <>
     ["tags" .= _operationTags]
     <>
     ["responses" .=  _operationResponses ]
@@ -311,6 +322,15 @@ instance ToJSON ExternalDocs where
     ["url" .= _externalDocsURL]
     <>
     pairMaybes [_externalDocsDescription] ["description"]
+
+instance ToJSON RequestBody where
+  toJSON RequestBody{..} = object $
+    pairMaybes [_requestBodyDescription] ["description"]
+    <>
+    ["content" .= _requestBodyContent, "required" .= _requestBodyRequired]
+
+instance ToJSON MediaType where
+  toJSON MediaType{..} = object $ ["example" .= _mediaTypeExample]
 
 {-
    Some records have optional fields, this are represented by a `Maybe a`. When
