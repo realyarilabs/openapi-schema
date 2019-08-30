@@ -105,3 +105,6 @@ data SchemaErr = DiscriminatorError DiscriminatorErr
                | WriteAndReadOnly
                | InvalidExampleSchema
                deriving (Eq, Show)
+
+data MediaTypeErr = InvalidExampleMediaType
+                  deriving (Eq, Show)

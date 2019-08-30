@@ -2,6 +2,7 @@ module OpenAPI.Builders
     (
       module OpenAPI.Builders.ContactBuilder
     , module OpenAPI.Builders.InfoBuilder
+    , module OpenAPI.Builders.MediaTypeBuilder
     , module OpenAPI.Builders.LicenseBuilder
     , module OpenAPI.Builders.PathBuilder
     , module OpenAPI.Builders.OpenAPIBuilder
@@ -30,6 +31,7 @@ import OpenAPI.Builders.DiscriminatorBuilder
 import OpenAPI.Builders.ExternalDocsBuilder
 import OpenAPI.Builders.InfoBuilder
 import OpenAPI.Builders.LicenseBuilder
+import OpenAPI.Builders.MediaTypeBuilder
 import OpenAPI.Builders.OpenAPIBuilder
 import OpenAPI.Builders.OperationBuilder
 import OpenAPI.Builders.ParameterBuilder
