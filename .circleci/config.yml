@@ -1,5 +1,27 @@
-version: 2
+version: 2.1
+orbs:
+  github: haskell-works/github-release@1.0.0
+
 jobs:
+  get-version:
+    working_directory: /tmp/cci-test
+    docker:
+      - image: golang:latest
+    steps:
+      - checkout
+      - run: pwd
+      - run: mkdir -p workspace
+      - run:
+          name: set vars
+          command: >
+            echo "export OAS_VERSION=$(grep '^version: *[0-9]' package.yaml | cut -d':' -f2 | tr -d ' ')" >> workspace/env-vars
+      - run: cat workspace/env-vars >> $BASH_ENV
+      - run: echo "$OAS_VERSION"
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            - env-vars
+
   build:
     docker:
       - image: fpco/stack-build:lts
@@ -18,7 +40,7 @@ jobs:
           # By sucking I mean, they suck the fpco/stack-build image in every single job.
           # According to some forum it won't if that machine doing the build already contains the docker image.
           # Obviously all of them are filled with NodeJS containers.
-          name: Run tests 
+          name: Run tests
           command: stack --no-terminal test
       - run:
           name: Install executable
@@ -55,10 +77,15 @@ jobs:
           path: /tmp/hpc
 
   mkdocs:
+    working_directory: /tmp/cci-test
     docker:
       - image: fpco/stack-build:lts
     steps:
       - checkout
+      - attach_workspace:
+          at: /tmp/cci-test/workspace
+      - run: cat workspace/env-vars >> $BASH_ENV
+      - run: echo "$OAS_VERSION"
       - restore_cache:
           name: Restore Cached Dependencies
           keys:
@@ -69,7 +96,7 @@ jobs:
           command: |
             stack --no-terminal haddock
             mkdir -p /tmp/haddock
-            mv "$(stack --no-terminal path --local-doc-root)/oas-0.1.0.0" /tmp/haddock
+            mv "$(stack --no-terminal path --local-doc-root)/oas-$OAS_VERSION" /tmp/haddock
       - store_artifacts:
           path: /tmp/haddock
 
@@ -78,7 +105,23 @@ workflows:
   all:
     jobs:
       - build
+      - get-version
       - coverage
       - mkdocs:
           requires:
             - build
+            - get-version
+      - github/release:
+          requires:
+            - mkdocs
+            - get-version
+          workspace-root: /tmp/cci-test/workspace
+          attach-workspace: true
+          before-release:
+            - run: cat /tmp/cci-test/workspace/env-vars >> $BASH_ENV
+            - run: echo "$OAS_VERSION"
+          tag: v$OAS_VERSION
+          title: Release v$OAS_VERSION
+          filters:
+            branches:
+              only: release
