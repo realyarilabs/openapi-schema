@@ -64,6 +64,15 @@ data Operation = Operation
   , _operationServers     :: [Server]
   } deriving (Eq, Show)
 
+data RequestBody = RequestBody
+  { _requestBodyDescription :: Maybe Text
+  , _requestBodyContent     :: HashMap Text MediaType
+  , _requestBodyRequired    :: Bool
+  } deriving (Eq, Show)
+
+data MediaType = MediaType
+  { _mediaTypeExample :: Text } deriving (Eq, Show)
+
 data Responses = ResponsesR Response
                | ResponsesRef Reference
                deriving (Eq, Show)
