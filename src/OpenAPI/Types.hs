@@ -321,6 +321,15 @@ instance ToJSON ExternalDocs where
     <>
     pairMaybes [_externalDocsDescription] ["description"]
 
+instance ToJSON RequestBody where
+  toJSON RequestBody{..} = object $
+    pairMaybes [_requestBodyDescription] ["description"]
+    <>
+    ["content" .= _requestBodyContent, "required" .= _requestBodyRequired]
+
+instance ToJSON MediaType where
+  toJSON MediaType{..} = object $ ["example" .= _mediaTypeExample]
+
 {-
    Some records have optional fields, this are represented by a `Maybe a`. When
    generating the JSON representation we do not want to have fields with the
